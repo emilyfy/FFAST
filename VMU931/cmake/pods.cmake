@@ -29,7 +29,7 @@
 # Distributed with pods version: 17.02.11
 
 # pods_install_headers(<header1.h> ... DESTINATION <subdir_name>)
-# 
+#
 # Install a (list) of header files.
 #
 # Header files will all be installed to include/<subdir_name>
