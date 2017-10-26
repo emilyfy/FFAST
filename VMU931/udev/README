@@ -1,0 +1,2 @@
+To install this udev rule, use udevadm to get the serial number of the VMU931.
+Replace the serial number with that value, and copy 99-usb-serial.rules to /etc/udev/rules.d/

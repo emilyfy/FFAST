@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{serial}=="931F0AFF2B", SYMLINK+="VMU931", MODE="0666"
