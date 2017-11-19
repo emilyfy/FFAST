@@ -10,8 +10,11 @@ include(cmake/teensy.cmake)
 set(BNO055_SRC src/BNO055/BNO055.cpp
                src/BNO055/i2c/i2c.cpp)
 
+# PWMServo sources
+set(PWM_SRC src/PWMServo/PWMServo.cpp)
+
 # main sources
 set(MAIN_SRC src/main.cpp)
 
 # build the teensy program
-teensy_add_executable(${POD_NAME} ${MAIN_SRC} ${BNO055_SRC})
+teensy_add_executable(${POD_NAME} ${BNO055_SRC} ${PWM_SRC} ${MAIN_SRC})

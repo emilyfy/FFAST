@@ -1,25 +1,45 @@
 #include "BNO055/BNO055.h"
+#include "PWMServo/PWMServo.h"
 #include <Arduino.h>
 
-int main(void)
-{
-    Serial.begin(115200);
+// Global Inputs
+Adafruit_BNO055 accel = Adafruit_BNO055();
+
+// Global Outputs
+PWMServo servo;
+
+void error_blink(int period_ms) {
+    while(1) {
+        digitalWriteFast(13, LOW);
+        delay(period_ms>>1);
+        digitalWriteFast(13, HIGH);
+        delay(period_ms>>1);
+    }
+}
+
+void setup(void) {
+    // Turn on LED to indicate aliveness.
 	pinMode(13, OUTPUT);
     digitalWriteFast(13, LOW);
 
-    Adafruit_BNO055 bno = Adafruit_BNO055();
+    // Initialize USB serial.
+    Serial.begin(115200);
 
-    if(!bno.begin())
-    {
-        digitalWriteFast(13, HIGH);
-        while (1);
+    // Initialize accelerometer.
+    accel = Adafruit_BNO055();
+
+    if(!accel.begin()) {
+        error_blink(1000);
     }
 
     delay(1000);
-    bno.setExtCrystalUse(true);
+    accel.setExtCrystalUse(true);
+}
+
+int main(void) {
 
     while(1) {
-       imu::Quaternion quat = bno.getQuat();
+       imu::Quaternion quat = accel.getQuat();
        Serial.print("(");
        Serial.print(quat.w(), 4);
        Serial.print(", ");
