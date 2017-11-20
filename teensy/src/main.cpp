@@ -6,7 +6,8 @@
 Adafruit_BNO055 accel = Adafruit_BNO055();
 
 // Global Outputs
-PWMServo servo;
+PWMServo steering_servo;
+PWMServo throttle_servo;
 
 void error_blink(int period_ms) {
     while(1) {
@@ -20,7 +21,11 @@ void error_blink(int period_ms) {
 void setup(void) {
     // Turn on LED to indicate aliveness.
 	pinMode(13, OUTPUT);
-    digitalWriteFast(13, LOW);
+    digitalWriteFast(13, HIGH);
+
+    // Initialize the servo outputs.
+    steering_servo.attach(3);
+    steering_servo.attach(4);
 
     // Initialize USB serial.
     Serial.begin(115200);
@@ -37,6 +42,9 @@ void setup(void) {
 }
 
 int main(void) {
+
+    steering_servo.write(0);
+    steering_servo.write(20);
 
     while(1) {
        imu::Quaternion quat = accel.getQuat();
