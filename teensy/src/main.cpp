@@ -24,8 +24,8 @@ void setup(void) {
     digitalWriteFast(13, HIGH);
 
     // Initialize the servo outputs.
-    steering_servo.attach(3);
     steering_servo.attach(4);
+    throttle_servo.attach(3);
 
     // Initialize USB serial.
     Serial.begin(115200);
@@ -42,9 +42,10 @@ void setup(void) {
 }
 
 int main(void) {
+    setup();
 
     steering_servo.write(0);
-    steering_servo.write(20);
+    throttle_servo.write(20);
 
     while(1) {
        imu::Quaternion quat = accel.getQuat();
