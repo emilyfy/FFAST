@@ -14,7 +14,7 @@ set(BNO055_SRC src/BNO055/BNO055.cpp
 set(PWM_SRC src/PWMServo/PWMServo.cpp)
 
 # main sources
-set(MAIN_SRC src/main.cpp)
+set(MAIN_SRC src/main.cpp src/vehicle.cpp)
 
 # build the teensy program
 teensy_add_executable(${POD_NAME} ${BNO055_SRC} ${PWM_SRC} ${MAIN_SRC})
