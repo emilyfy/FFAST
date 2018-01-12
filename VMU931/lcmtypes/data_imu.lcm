@@ -1,0 +1,11 @@
+package vmu931;
+
+struct data_imu
+{
+    data_xyz    data_accel;
+    data_xyz    data_euler;
+    data_xyz    data_gyro;
+    data_h      data_heading;
+    data_xyz    data_mag;
+    data_wxyz   data_quat;
+}

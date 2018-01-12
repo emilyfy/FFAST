@@ -1,0 +1,17 @@
+This software is constructed according to the Pods software policies and
+templates.  The policies and templates can be found at:
+
+  http://sourceforge.net/projects/pods
+
+====
+
+Name:         VMU931
+Maintainers:  Jordan Ford
+Summary:      VMU931 IMU interface code.
+Description:
+    Interfaces to the VMU931 IMU from Variense. Publishes select IMU data over LCM.
+
+Requirements:
+    Requires LCM.
+
+License:    GFY3.0

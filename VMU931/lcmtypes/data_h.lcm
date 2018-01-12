@@ -1,0 +1,7 @@
+package vmu931;
+
+struct data_h
+{
+    int64_t timestamp;
+    float   h;
+}

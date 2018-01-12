@@ -1,0 +1,9 @@
+package vmu931;
+
+struct data_xyz
+{
+    int64_t timestamp;
+    float   x;
+    float   y; 
+    float   z;
+}
