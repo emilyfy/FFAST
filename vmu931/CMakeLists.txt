@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6.0)
 
 # pull in the pods macros. See cmake/pods.cmake for documentation
-set(POD_NAME VMU931)
+set(POD_NAME vmu931)
 include(cmake/pods.cmake)
 
 # automatically build LCM types.  This also defines a number of CMake
@@ -19,11 +19,10 @@ set(LISTENER_SOURCES src/listener.c)
 #set(CMAKE_BUILD_TYPE Debug)
 
 # build LCM program
-add_executable(vmu_publisher ${VMU931_SOURCES})
-add_executable(listener ${LISTENER_SOURCES})
-pods_use_pkg_config_packages(vmu_publisher lcm lcmtypes_${POD_NAME})
-pods_use_pkg_config_packages(listener lcm lcmtypes_${POD_NAME})
+add_executable(${POD_NAME} ${VMU931_SOURCES})
+add_executable(${POD_NAME}_listener ${LISTENER_SOURCES})
+pods_use_pkg_config_packages(${POD_NAME} lcm lcmtypes_${POD_NAME})
+pods_use_pkg_config_packages(${POD_NAME}_listener lcm lcmtypes_${POD_NAME})
 
 # make executable public
-pods_install_executables(vmu_publisher)
-pods_install_executables(listener)
+pods_install_executables(${POD_NAME} ${POD_NAME}_listener)

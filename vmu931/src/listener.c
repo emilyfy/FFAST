@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <inttypes.h>
 #include <lcm/lcm.h>
 #include "lcmtypes/vmu931_data_imu.h"

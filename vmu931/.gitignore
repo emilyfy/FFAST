@@ -1,3 +1,6 @@
+*.pyc
+*~
+
 lcmtypes/c
 lcmtypes/cpp
 lcmtypes/java
