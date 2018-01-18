@@ -4,3 +4,4 @@
 lidar
 vmu931
 teensy
+serial_lcm_interface
