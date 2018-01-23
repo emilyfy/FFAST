@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 /********** Global Variables **********/
-VehicleDef Vehicle;
+volatile VehicleDef Vehicle;
 
 /********** E-Stop Interrupt Routine **********/
 void estop_isr(void) {
@@ -101,7 +101,7 @@ VehicleDef::~VehicleDef(void) {}
 
 
 /********** Public Functions : Setters **********/
-void VehicleDef::set_steering_angle(float angle_rad) {
+void VehicleDef::set_steering_angle(float angle_rad) volatile {
     // Cap the steering angle at the vehicle limits.
     angle_rad = (angle_rad >  MAX_STEERING_ANGLE_RAD) ?   MAX_STEERING_ANGLE_RAD : angle_rad;
     angle_rad = (angle_rad < -MAX_STEERING_ANGLE_RAD) ?  -MAX_STEERING_ANGLE_RAD : angle_rad;
@@ -109,30 +109,30 @@ void VehicleDef::set_steering_angle(float angle_rad) {
     analogWrite(STEERING_PIN, steering_val);
 }
 
-void VehicleDef::set_throttle_speed(float speed_mps) {
+void VehicleDef::set_throttle_speed(float speed_mps) volatile {
     Vehicle.target_speed_tps = speed_mps * 1000.0 / (2*M_PI*VEHICLE_WHEEL_RAD_MM) * VEHICLE_GEAR_RATIO * 6;
     sent_speed_tps = Vehicle.target_speed_tps;
     Vehicle.send_speed();
 }
 
-void VehicleDef::run_profile(int profile) {
+void VehicleDef::run_profile(int profile) volatile {
 }
 
 /********** Public Functions : Getters **********/
-double VehicleDef::get_odom_m(void) {
+double VehicleDef::get_odom_m(void) volatile {
     return ( Vehicle.odom / VEHICLE_GEAR_RATIO / 6 * 2*M_PI*VEHICLE_WHEEL_RAD_MM / 1000 ) ; 
 }
 
-double VehicleDef::get_speed_tps(void) {
+double VehicleDef::get_speed_tps(void) volatile {
     return actual_speed_tps;
 }
 
-double VehicleDef::get_speed_mps(void) {
+double VehicleDef::get_speed_mps(void) volatile {
     return ( actual_speed_tps / VEHICLE_GEAR_RATIO / 6 * 2*M_PI*VEHICLE_WHEEL_RAD_MM / 1000 ) ; 
 }
 
 /********** Private Functions **********/
-void VehicleDef::send_speed(void) {
+void VehicleDef::send_speed(void) volatile {
     // Cap speed at the vehicle limits.
     sent_speed_tps = (sent_speed_tps > MAX_THROTTLE_SPEED_TPS) ? MAX_THROTTLE_SPEED_TPS : sent_speed_tps;
     sent_speed_tps = (sent_speed_tps < MIN_THROTTLE_SPEED_TPS) ? MIN_THROTTLE_SPEED_TPS : sent_speed_tps;
@@ -140,7 +140,7 @@ void VehicleDef::send_speed(void) {
     analogWrite(THROTTLE_PIN, throttle_val);
 }
 
-int VehicleDef::interpolate_(float speed_tps) {
+int VehicleDef::interpolate_(float speed_tps) volatile {
     int lower_val = (int)speed_tps/LOOKUP_STEP_TPS*LOOKUP_STEP_TPS;
     int lower_idx = (lower_val - MIN_THROTTLE_SPEED_TPS)/LOOKUP_STEP_TPS;
     int val = lower_val + (speed_tps - lower_val)*(lookup[lower_idx+1]-lower_val)/20;

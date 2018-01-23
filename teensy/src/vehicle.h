@@ -41,39 +41,37 @@
 #define KD   0
 
 
-extern IntervalTimer odom_timer;
         
 constexpr uint8_t hall_effect_sequence[6] = {0, 2, 1, 4, 5, 3};
 
 class VehicleDef {
     public:
-        volatile bool estop_status;
-        volatile uint32_t steering_val;
-        volatile uint32_t throttle_val;
-        volatile float sent_speed_tps;
-        volatile float actual_speed_tps;
-        volatile float target_speed_tps;
-        volatile uint64_t odom;
-
+        bool estop_status;
+        uint32_t steering_val;
+        uint32_t throttle_val;
+        float sent_speed_tps;
+        float actual_speed_tps;
+        float target_speed_tps;
+        uint64_t odom;
         IntervalTimer odom_timer;
 
         VehicleDef();
         ~VehicleDef();
 
-        void set_steering_angle(float);
-        void set_throttle_speed(float);
-        void run_profile(int);
-        double get_odom_m(void);
-        double get_speed_tps(void);
-        double get_speed_mps(void);
-        int get_throttle_val(void) { return throttle_val; }
-        int get_steering_val(void) { return steering_val; }
-        void send_speed(void);
+        void set_steering_angle(float) volatile;
+        void set_throttle_speed(float) volatile;
+        void run_profile(int) volatile;
+        double get_odom_m(void) volatile;
+        double get_speed_tps(void) volatile;
+        double get_speed_mps(void) volatile;
+        int get_throttle_val(void) volatile { return throttle_val; }
+        int get_steering_val(void) volatile { return steering_val; }
+        void send_speed(void) volatile;
 
     private:
-        int interpolate_(float);
+        int interpolate_(float) volatile;
 };
 
-extern VehicleDef Vehicle;
+volatile extern VehicleDef Vehicle;
 
 #endif
