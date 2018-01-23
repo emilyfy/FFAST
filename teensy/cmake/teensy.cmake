@@ -30,12 +30,13 @@ set(CMAKE_SYSTEM_NAME Generic)
 # specify the cross compiler
 cmake_force_c_compiler(${COMPILERPATH}arm-none-eabi-gcc GNU)
 cmake_force_cxx_compiler(${COMPILERPATH}arm-none-eabi-g++ GNU)
+set(CMAKE_AR ${COMPILERPATH}/arm-none-eabi-gcc-ar CACHE FILEPATH "ar" FORCE)
 
 # where is the target environment
 set(CMAKE_FIND_ROOT_PATH ${COMPILERPATH})
 
 # search for programs in the build host directories
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
 
 # for libraries and headers in the target directories
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -47,8 +48,8 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 file(GLOB TEENSY_C_FILES ${COREPATH}*.c)
 file(GLOB TEENSY_CPP_FILES ${COREPATH}*.cpp)
+list(REMOVE_ITEM TEENSY_CPP_FILES ${COREPATH}main.cpp)
 set(TEENSY_SOURCES ${TEENSY_C_FILES} ${TEENSY_CPP_FILES})
-list(REMOVE_ITEM TEENSY_SOURCES ${COREPATH}main.cpp)
 
 
 # Teensy 3.0 and 3.1 differentiation
@@ -72,13 +73,22 @@ set(TEENSY_DEFINITIONS USB_SERIAL
 #
 function(teensy_add_executable TARGET)
 	set(ELFTARGET ${TARGET}.elf)
+    set(LIBTARGET ${TARGET})
 
-    add_executable(${ELFTARGET} ${ARGN} ${TEENSY_SOURCES})
+    add_library(${LIBTARGET} STATIC ${TEENSY_C_FILES})
+    add_executable(${ELFTARGET} ${ARGN} ${TEENSY_CPP_FILES})
 
-    set_target_properties(${ELFTARGET} PROPERTIES COMPILE_FLAGS "-Wall -g -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -felide-constructors -fno-exceptions -fno-rtti -std=gnu++0x")
+    set_target_properties(${LIBTARGET} PROPERTIES COMPILE_FLAGS "-Ofast -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -fno-exceptions")
+	set_target_properties(${LIBTARGET} PROPERTIES COMPILE_DEFINITIONS "${TEENSY_DEFINITIONS}")
+	set_target_properties(${LIBTARGET} PROPERTIES INCLUDE_DIRECTORIES "${COREPATH}")
+	set_target_properties(${LIBTARGET} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=${CPU} -mthumb -T${LINKER_FILE}")
+
+    set_target_properties(${ELFTARGET} PROPERTIES COMPILE_FLAGS "-Ofast -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -felide-constructors -fno-exceptions -fno-rtti -std=gnu++0x")
 	set_target_properties(${ELFTARGET} PROPERTIES COMPILE_DEFINITIONS "${TEENSY_DEFINITIONS}")
 	set_target_properties(${ELFTARGET} PROPERTIES INCLUDE_DIRECTORIES "${COREPATH}")
 	set_target_properties(${ELFTARGET} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=${CPU} -mthumb -T${LINKER_FILE}")
+
+    target_link_libraries(${ELFTARGET} PUBLIC ${LIBTARGET})
 
 	add_custom_command(OUTPUT ${TARGET}.hex
 	                   COMMAND ${COMPILERPATH}arm-none-eabi-size bin/${ELFTARGET}
