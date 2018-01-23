@@ -56,12 +56,14 @@ extern IntervalTimer odom_timer;
         
 class Vehicle {
     public:
+        bool estop_status = false;
+
         Vehicle();
         ~Vehicle();
 
         void set_steering_angle(float);
         void set_throttle_speed(float);
-        void set_profile(int);
+        void run_profile(int);
         double get_odom_m(void);
         double get_speed_tps(void);
         double get_speed_mps(void);

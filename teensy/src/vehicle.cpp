@@ -123,7 +123,7 @@ void Vehicle::set_throttle_speed(float speed_mps) {
     send_speed_(target_speed_tps_);
 }
 
-void Vehicle::set_profile(int profile) {
+void Vehicle::run_profile(int profile) {
 }
 
 /********** Public Functions : Getters **********/
