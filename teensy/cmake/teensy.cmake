@@ -9,7 +9,7 @@ include(CMakeForceCompiler)
 #
 set(TEENSY_VERSION 32 CACHE STRING "Set to the Teensy version corresponding to your board (30 or 31 allowed)" FORCE)
 set(CPU_CORE_SPEED 96000000 CACHE STRING "Set to 24000000, 48000000, 72000000 or 96000000 to set CPU core speed" FORCE)
-set(ARDUINOPATH "/opt/arduino-1.8.5/" CACHE STRING "Path to Arduino installation" FORCE)
+set(ARDUINOPATH "/usr/share/arduino/" CACHE STRING "Path to Arduino installation" FORCE)
 
 
 # Derived variables
@@ -78,12 +78,12 @@ function(teensy_add_executable TARGET)
     add_library(${LIBTARGET} STATIC ${TEENSY_C_FILES})
     add_executable(${ELFTARGET} ${ARGN} ${TEENSY_CPP_FILES})
 
-    set_target_properties(${LIBTARGET} PROPERTIES COMPILE_FLAGS "-Ofast -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -fno-exceptions")
+    set_target_properties(${LIBTARGET} PROPERTIES COMPILE_FLAGS "-Wall -Ofast -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -fno-exceptions")
 	set_target_properties(${LIBTARGET} PROPERTIES COMPILE_DEFINITIONS "${TEENSY_DEFINITIONS}")
 	set_target_properties(${LIBTARGET} PROPERTIES INCLUDE_DIRECTORIES "${COREPATH}")
 	set_target_properties(${LIBTARGET} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=${CPU} -mthumb -T${LINKER_FILE}")
 
-    set_target_properties(${ELFTARGET} PROPERTIES COMPILE_FLAGS "-Ofast -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -felide-constructors -fno-exceptions -fno-rtti -std=gnu++0x")
+    set_target_properties(${ELFTARGET} PROPERTIES COMPILE_FLAGS "-Wall -Wno-c++14-compat -Ofast -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -felide-constructors -fno-exceptions -fno-rtti -std=gnu++0x")
 	set_target_properties(${ELFTARGET} PROPERTIES COMPILE_DEFINITIONS "${TEENSY_DEFINITIONS}")
 	set_target_properties(${ELFTARGET} PROPERTIES INCLUDE_DIRECTORIES "${COREPATH}")
 	set_target_properties(${ELFTARGET} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=${CPU} -mthumb -T${LINKER_FILE}")
