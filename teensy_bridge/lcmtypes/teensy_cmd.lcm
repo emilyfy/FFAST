@@ -1,9 +1,0 @@
-package teensy;
-
-struct cmd_t
-{
-    float    vel_mps;
-    float    steering_rad;
-    boolean  estop;
-    int8_t   profile;
-}

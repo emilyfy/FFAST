@@ -1,0 +1,27 @@
+<launch>
+
+    <arg name="lidar_path" default="/dev/Hokuyo" />
+        <node
+            name="Hokuyo" pkg="urg_node" type="urg_node" respawn="true">
+            <param name="serial_port" value="$(arg lidar_path)" />
+        </node>
+    
+    <arg name="teensy_path" default="/dev/teensy" />
+    <arg name="teensy_baudrate" default="115200" />
+        <node
+            name="Teensy" pkg="rosserial_python" type="serial_node.py" respawn="true">
+            <param name="port" value="$(arg teensy_path)" />
+            <param name="baud" value="$(arg teensy_baudrate)" />
+        </node>
+
+    <arg name="imu_path" default="/dev/VMU931" />
+    <arg name="imu_baudrate" default="9600" />
+        <node
+            name="VMU931" pkg="vmu931" type="vmu931_node" respawn="true">
+            <param name="serial_port" value="$(arg imu_path)" />
+            <param name="serial_baudrate" value="$(arg imu_baudrate)" />
+        </node>
+
+        <node name="tf_publisher" pkg="tf_publisher" type="tf_publisher_node" respawn="true" />
+    
+</launch>

@@ -1,8 +1,0 @@
-package serial;
-
-struct data_pub
-{
-    float     odom_m;
-    float     vel_mps;
-    boolean   estop;
-}
