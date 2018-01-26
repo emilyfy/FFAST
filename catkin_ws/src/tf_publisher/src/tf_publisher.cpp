@@ -13,13 +13,13 @@ int main(int argc, char** argv){
   while(n.ok()){
     imu_broadcaster.sendTransform(
       tf::StampedTransform(
-        tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 0.0)),
-        ros::Time::now(),"base_link", "imu"));
+        tf::Transform(tf::Quaternion(0, 0, 1, 0), tf::Vector3(0.0, 0.0, 0.0)),
+        ros::Time::now(),"base_link", "base_imu"));
 
     lidar_broadcaster.sendTransform(
       tf::StampedTransform(
         tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.06785, 0.0, 0.02072)),
-        ros::Time::now(),"base_link", "laser"));
+        ros::Time::now(),"base_link", "base_lidar"));
     
     r.sleep();
   }

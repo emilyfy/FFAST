@@ -227,7 +227,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh_private("~");
     nh_private.param<std::string>("serial_port", serial_port, "/dev/VMU931"); 
     nh_private.param<int>("serial_baudrate", serial_baudrate, 9600); 
-    nh_private.param<std::string>("frame_id", frame_id, "imu");
+    nh_private.param<std::string>("frame_id", frame_id, "base_imu");
 
     int vmu_fd = connect_to_serial_port(serial_port.c_str(), serial_baudrate);
     if (vmu_fd == -1) { return 0; }
@@ -317,8 +317,8 @@ int main(int argc, char** argv) {
                 vmu931_data.header.stamp = ros::Time::now();
                 pub_vmu931.publish(vmu931_data);
                 imu_data.orientation.w = data_quat.w;
-                imu_data.orientation.y = data_quat.x;
-                imu_data.orientation.z = data_quat.y;
+                imu_data.orientation.x = data_quat.x;
+                imu_data.orientation.y = data_quat.y;
                 imu_data.orientation.z = data_quat.z;
                 imu_data.header.stamp = ros::Time::now();
                 pub_imu.publish(imu_data);

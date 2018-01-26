@@ -1,9 +1,11 @@
 <launch>
 
     <arg name="lidar_path" default="/dev/Hokuyo" />
+    <arg name="lidar_frame_id" default="base_lidar" />
         <node
             name="Hokuyo" pkg="urg_node" type="urg_node" respawn="true">
             <param name="serial_port" value="$(arg lidar_path)" />
+            <param name="frame_id" value="$(arg lidar_frame_id)" />
         </node>
     
     <arg name="teensy_path" default="/dev/teensy" />
