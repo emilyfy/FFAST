@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(teensy)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-#add_compile_options(-std=c++11)
-
 find_package(catkin REQUIRED COMPONENTS
     ros_teensy
     rosserial_client
@@ -21,13 +18,14 @@ generate_messages(
     DEPENDENCIES
 )
 
-catkin_package(
-    CATKIN_DEPENDS message_runtime
-)
 
 rosserial_generate_ros_lib(
     PACKAGE rosserial_arduino
     SCRIPT  make_libraries.py
+)
+
+catkin_package(
+    CATKIN_DEPENDS message_runtime
 )
 
 rosserial_configure_client(

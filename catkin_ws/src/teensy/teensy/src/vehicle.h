@@ -37,16 +37,27 @@
 #define STEERING_CENTER     ((1<<PWM_RESOLUTION_BITS)*1.5*STEERING_PWM_FREQUENCY_HZ/1000.0)     // Send to analogWrite() to go straight.
 #define STEERING_RIGHT_MAX  ((1<<PWM_RESOLUTION_BITS)*1.25*STEERING_PWM_FREQUENCY_HZ/1000.0)    // Send to analogWrite() for maximum right turn.
 
-// Speed PID parameters
-#define KP   0.3
-#define KI   0
-#define KD   0
+// Convert between m/s and tic/s
+#define MPS_TO_TPS(mps) ((mps)*1000.0 / (2*M_PI*VEHICLE_WHEEL_RAD_MM) * VEHICLE_GEAR_RATIO * 6)
+#define TPS_TO_MPS(tps) ((tps)/ VEHICLE_GEAR_RATIO / 6 * 2*M_PI*VEHICLE_WHEEL_RAD_MM / 1000 )
 
+// Speed PID parameters
+#define KP   0.03
+#define KI   0.0001
+#define KD   0.005
+#define ERR_INT_LIMIT 2000
+
+void estop_isr(void);
+void odom_isr(void);
         
 class VehicleDef {
     public:
         bool estop_status;
-        double actual_speed_tps;
+
+        double velocity_measured_tps;
+        double velocity_commanded_tps;
+        double velocity_setpoint_tps;
+
         int64_t odom;
         IntervalTimer odom_timer;
 
@@ -54,21 +65,26 @@ class VehicleDef {
         ~VehicleDef();
 
         void set_steering_angle(double) volatile;
-        void set_throttle_speed(double) volatile;
-        void run_profile(int) volatile;
+        void set_velocity_setpoint(double) volatile;
         double get_odom_m(void) volatile;
         double get_speed_tps(void) volatile;
         double get_speed_mps(void) volatile;
         double get_steering_rad(void) volatile { return steering_ang_rad; }
-        int get_throttle_val(void) volatile { return throttle_val; }
-        int get_steering_val(void) volatile { return steering_val; }
-        void send_speed(double) volatile;
+        int get_velocity_pwm(void) volatile { return velocity_pwm_val; }
+        int get_steering_pwm(void) volatile { return steering_pwm_val; }
+        void send_speed(void) volatile;
+        void update_pid(void) volatile;
+
+        double pub_err;
+        double pub_err_int;
+        double pub_err_d;
 
     private:
-        uint32_t steering_val;
-        uint32_t throttle_val;
-        double sent_speed_tps;
-        double target_speed_tps;
+        uint32_t steering_pwm_val;
+        uint32_t velocity_pwm_val;
+
+
+
         double steering_ang_rad;
         int interpolate_(double) volatile;
 };

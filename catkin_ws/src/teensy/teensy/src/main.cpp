@@ -8,14 +8,11 @@
 
 void commandCallback(const teensy::Command& cmd) {
     // Set throttle speed and steering angle according to command.
-    Vehicle.set_throttle_speed(cmd.vel_mps);
+    Vehicle.set_velocity_setpoint(cmd.vel_mps);
     Vehicle.set_steering_angle(cmd.steering_rad);
 
     // Set estop flag if commanded by Jetson.
-    if (cmd.estop) { Vehicle.estop_status = true; }
-
-    // Run a profile if prompted to. Default value of 0 means no profile selected.
-    if (cmd.profile) { Vehicle.run_profile(cmd.profile); }
+    if (cmd.estop) { estop_isr(); }
 }
 
 int main(void) {
@@ -33,9 +30,17 @@ int main(void) {
     while (!Vehicle.estop_status) {
         fdb.odom_m = Vehicle.get_odom_m();
         fdb.vel_mps = Vehicle.get_speed_mps();
+        fdb.setpoint  = TPS_TO_MPS(Vehicle.velocity_setpoint_tps);
+        fdb.measured  = TPS_TO_MPS(Vehicle.velocity_measured_tps);
+        fdb.command  = TPS_TO_MPS(Vehicle.velocity_commanded_tps);
+        fdb.err = Vehicle.pub_err;
+        fdb.i_err = Vehicle.pub_err_int;
+        fdb.d_err = Vehicle.pub_err_d;
+
         pub.publish(&fdb);
         nh.spinOnce();
         delay(5);
+        Vehicle.update_pid();
     }
 
     fdb.estop = Vehicle.estop_status;
