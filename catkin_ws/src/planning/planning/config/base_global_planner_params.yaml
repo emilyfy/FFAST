@@ -1,0 +1,14 @@
+SBPLLatticePlanner:
+  planner_type: ARAPlanner
+  allocated_time: 10
+  initial_epsilon: 3.0
+  forward_search: false
+  
+  environment_type: XYThetaLattice
+  primitive_filename: mst_fxxd_primitives.mprim
+  
+  nominalvel_mpersecs: 1.5
+  max_vel_theta: 1.0
+  timetoturn45degsinplace_secs: 0.6
+  
+  lethal_obstacle: 30

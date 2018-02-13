@@ -1,0 +1,11 @@
+<launch>
+
+    <node name="joy_listener" pkg="user_interface" type="joy_listener" output="screen" />
+    
+    <arg name="joy_path" default="/dev/input/js1" />
+    <node
+        name="joy_node" pkg="joy" type="joy_node" output="screen">
+        <param name="dev" value="$(arg joy_path)" />
+    </node>
+
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+
+    <param name="robot_description" textfile="$(find ffast_urdf)/robots/ffast_urdf.urdf" />
+    <node name="rviz" pkg="rviz" type="rviz" />
+        
+</launch>

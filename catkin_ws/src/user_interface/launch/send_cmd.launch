@@ -1,0 +1,5 @@
+<launch>
+
+    <node name="send_cmd" pkg="user_interface" type="send_cmd" output="screen" />
+
+</launch>

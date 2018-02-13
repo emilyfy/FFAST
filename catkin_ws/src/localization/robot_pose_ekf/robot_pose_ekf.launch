@@ -1,0 +1,26 @@
+<launch>
+
+<arg name="output_frame" default="odom_combined" />
+<arg name="base_footprint_frame" default="base_footprint" />
+<arg name="freq" default="30.0" />
+<arg name="sensor_timeout" default="1.0" />
+<arg name="odom_used" default="true" />
+<arg name="imu_used" default="true" />
+<arg name="vo_used" default="true" />
+<arg name="remap_frame" default="pr2_base_odometry/odom" />
+<arg name="remap_imu" default="imu_data" />
+
+<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
+  <param name="output_frame" value="$(arg output_frame)"/>
+  <param name="base_footprint_frame" value="$(arg base_footprint_frame)"/>
+  <param name="freq" value="$(arg freq)"/>
+  <param name="sensor_timeout" value="$(arg sensor_timeout)"/>  
+  <param name="odom_used" value="$(arg odom_used)"/>
+  <param name="imu_used" value="$(arg imu_used)"/>
+  <param name="vo_used" value="$(arg vo_used)"/>
+
+  <remap from="odom" to="$(arg remap_frame)" />
+  <remap from="imu_data" to="$(arg remap_imu)" />
+</node>
+
+</launch>

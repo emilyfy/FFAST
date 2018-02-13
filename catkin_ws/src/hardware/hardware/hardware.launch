@@ -1,0 +1,41 @@
+<launch>
+    
+    <!-- ROSSerial with Teensy -->
+    <arg name="teensy_path" default="/dev/teensy" />
+    <node
+        name="teensy" pkg="rosserial_python" type="serial_node.py" respawn="true" output="screen">
+        <param name="port" value="$(arg teensy_path)" />
+        <param name="baud" value="115200" />
+    </node>
+
+    <!-- LIDAR -->
+    <arg name="lidar_path" default="/dev/Hokuyo" />
+    <node
+        name="hokuyo" pkg="urg_node" type="urg_node" respawn="true" output="screen">
+        <param name="serial_port" value="$(arg lidar_path)" />
+        <param name="frame_id" value="base_lidar" />
+        <remap from="laser_status" to="hokuyo/laser_status" />
+    </node>
+    
+    <!-- IMU -->
+    <arg name="imu_path" default="/dev/VMU931" />
+    <arg name="publish_vmu931" default="false" />
+    <node
+        name="vmu931" pkg="vmu931" type="vmu931_node" respawn="true" output="screen">
+        <param name="serial_port" value="$(arg imu_path)" />
+        <param name="pub_vmu931" value="$(arg publish_vmu931)" />
+    </node>
+
+    <!-- Static TF Broadcaster -->
+    <node name="static_tf_broadcaster" pkg="tf_broadcaster" type="static_tf_broadcaster" respawn="true" />
+    
+    <!-- Odom Publisher (while teensy isn't doing it yet) -->
+    <arg name="odom_tf" default="false" />
+    <arg name="odom_covariance" default="0.1" />
+    <node
+        name="odom_publisher" pkg="tf_broadcaster" type="odom_publisher" respawn="true">
+        <param name="odom_covariance" value="$(arg odom_covariance)" />
+        <param name="odom_tf" value="$(arg odom_tf)" />
+    </node>
+    
+</launch>
