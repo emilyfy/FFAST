@@ -10,7 +10,7 @@ project(user_interface)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  teensy_msgs
+  ackermann_msgs
 )
 
 ## System dependencies are found with CMake's conventions

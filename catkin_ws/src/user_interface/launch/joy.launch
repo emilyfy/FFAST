@@ -2,7 +2,7 @@
 
     <node name="joy_listener" pkg="user_interface" type="joy_listener" output="screen" />
     
-    <arg name="joy_path" default="/dev/input/js1" />
+    <arg name="joy_path" default="/dev/input/by-id/usb-HJC_Game__ZD_Game_For_Windows__00000000-joystick" />
     <node
         name="joy_node" pkg="joy" type="joy_node" output="screen">
         <param name="dev" value="$(arg joy_path)" />

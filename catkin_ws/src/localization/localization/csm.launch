@@ -31,10 +31,10 @@
             <param name="publish_tf" value="false" unless="$(arg scan_matcher_tf)" />
             <param name="publish_tf" value="false" if="$(arg combine_frames)" />
             <param name="publish_pose" value="false" />
-            <param name="publish_pose_with_covariance_stamped" value="true" />
+            <param name="publish_pose_stamped" value="true" />
             <remap from="odom" to="robot_pose_ekf/odom_combined" if="$(arg use_ekf)" />
             <remap from="imu/data" to="imu" />
-            <remap from="pose_with_covariance_stamped" to="laser_scan_matcher/pose" />
+            <remap from="pose_stamped" to="laser_scan_matcher/pose" />
         </node>
     
         <node name="tf_combine_frames" pkg="tf_broadcaster" type="tf_combine_frames" output="screen" if="$(arg combine_frames)" />

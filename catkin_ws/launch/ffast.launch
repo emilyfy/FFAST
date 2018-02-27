@@ -1,15 +1,31 @@
 <launch>
     
-    <!-- HARDWARE --> 
-        <include file="$(find hardware)/hardware.launch" />
-    
+    <!-- HARDWARE -->
+        <arg name="vesc_path" default="/dev/VESC" />
+        <arg name="odom_tf" default="false" />
+        <arg name="odom_covariance" default="0.1" />
+        <arg name="lidar_path" default="/dev/Hokuyo" />
+        <arg name="imu_path" default="/dev/VMU931" />
+        <arg name="publish_vmu931" default="false" />
+        <include file="$(find hardware)/hardware.launch" >
+            <arg name="vesc_path" value="$(arg vesc_path)" />
+            <arg name="odom_tf" value="$(arg odom_tf)" />
+            <arg name="odom_covariance" value="$(arg odom_covariance)" />
+            <arg name="lidar_path" value="$(arg lidar_path)" />
+            <arg name="imu_path" value="$(arg imu_path)" />
+            <arg name="publish_vmu931" value="$(arg publish_vmu931)" />
+        </include>
+
     <!-- LOCALIZATION -->
         <arg name="use_scan_matcher" default="false" />
         <arg name="use_slam" default="true" />
     
         <include file="$(find localization)/csm.launch" if="$(arg use_scan_matcher)" />
         <include file="$(find localization)/slam.launch" if="$(arg use_slam)" />
-        
+    
+    <!-- PLANNING -->
+        <include file="$(find planning)/launch/move_base.launch" />
+    
     <!-- RVIZ -->
         <arg name="use_rviz" default="false" />
         <include file="$(find user_interface)/rviz.launch" if="$(arg use_rviz)" />

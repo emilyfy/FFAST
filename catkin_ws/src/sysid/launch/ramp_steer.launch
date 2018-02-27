@@ -1,0 +1,14 @@
+<launch>
+
+    <include file="$(find vesc)/vesc.launch">
+        <arg name="vesc_path" value="/dev/VESC" />
+    </include>
+
+    <node
+        name="vmu931" pkg="vmu931" type="vmu931_node" respawn="true" output="screen">
+        <param name="serial_port" value="/dev/VMU931" />
+    </node>
+
+    <node name="ramp_steer" pkg="sysid" type="ramp_steer" required="true" output="screen" />
+
+</launch>

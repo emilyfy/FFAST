@@ -1,0 +1,27 @@
+<launch>
+
+    <arg name="vesc_path" />
+    <arg name="odom_tf" />
+    <arg name="odom_covariance" />
+
+    <!-- driver -->
+    <node
+        name="vesc_driver" pkg="vesc_driver" type="vesc_driver_node" respawn="true" output="screen">
+        <param name="port" value="$(arg vesc_path)" />
+        <rosparam file="$(find hardware)/config/vesc_driver.yaml" command="load" />
+    </node>
+    
+    <!-- odom publisher -->
+    <node
+        name="odom_publisher" pkg="vesc_interface" type="odom_publisher_node" respawn="true">
+        <param name="odom_covariance" value="$(arg odom_covariance)" />
+        <param name="publish_tf" value="$(arg odom_tf)" />
+    </node>
+    
+    <!-- command publisher -->
+    <node name="vesc_command_publisher" pkg="vesc_interface" type="cmd_publisher_node" respawn="true" />
+    
+    <!-- multiplexer -->
+    <node name="multiplexer" pkg="vesc_interface" type="multiplexer_node" respawn="true" />
+
+</launch>

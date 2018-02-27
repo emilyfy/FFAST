@@ -1,12 +1,16 @@
 <launch>
     
-    <!-- ROSSerial with Teensy -->
-    <arg name="teensy_path" default="/dev/teensy" />
-    <node
-        name="teensy" pkg="rosserial_python" type="serial_node.py" respawn="true" output="screen">
-        <param name="port" value="$(arg teensy_path)" />
-        <param name="baud" value="115200" />
-    </node>
+    <rosparam file="$(find hardware)/config/vehicle_params.yaml" command="load" />
+    
+    <!-- VESC -->
+    <arg name="vesc_path" default="/dev/VESC" />
+    <arg name="odom_tf" default="false" />
+    <arg name="odom_covariance" default="0.1" />
+    <include file="$(find vesc)/vesc.launch">
+        <arg name="vesc_path" value="$(arg vesc_path)" />
+        <arg name="odom_tf" value="$(arg odom_tf)" />
+        <arg name="odom_covariance" value="$(arg odom_covariance)" />
+    </include>
 
     <!-- LIDAR -->
     <arg name="lidar_path" default="/dev/Hokuyo" />
@@ -28,14 +32,5 @@
 
     <!-- Static TF Broadcaster -->
     <node name="static_tf_broadcaster" pkg="tf_broadcaster" type="static_tf_broadcaster" respawn="true" />
-    
-    <!-- Odom Publisher (while teensy isn't doing it yet) -->
-    <arg name="odom_tf" default="false" />
-    <arg name="odom_covariance" default="0.1" />
-    <node
-        name="odom_publisher" pkg="tf_broadcaster" type="odom_publisher" respawn="true">
-        <param name="odom_covariance" value="$(arg odom_covariance)" />
-        <param name="odom_tf" value="$(arg odom_tf)" />
-    </node>
     
 </launch>

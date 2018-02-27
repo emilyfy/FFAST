@@ -28,9 +28,9 @@
                 <param name="pub_map_odom_transform" value="true" />
                 <param name="pub_map_scanmatch_transform" value="false" />
                 
-                <remap from="poseupdate" to="hector_mapping/poseupdate" />
+                <remap from="poseupdate" to="hector_mapping/pose_with_covariance" />
                 <remap from="slam_cloud" to="hector_mapping/slam_cloud" />
-                <remap from="slam_out_pose" to="hector_mapping/slam_out_pose" />
+                <remap from="slam_out_pose" to="hector_mapping/pose" />
                 <remap from="syscommand" to="hector_mapping/syscommand" />
             </node>
         </group>

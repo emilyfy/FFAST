@@ -8,13 +8,12 @@ project(tf_broadcaster)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
   roscpp
-  rospy
   tf
   tf2
   tf2_ros
-  teensy_msgs
+  geometry_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -109,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES tf_broadcaster
-#  CATKIN_DEPENDS geometry_msgs roscpp rospy tf
+#  CATKIN_DEPENDS geometry_msgs roscpp tf
 #  DEPENDS system_lib
 )
 
@@ -138,9 +137,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(static_tf_broadcaster src/static_tf_broadcaster.cpp)
-add_executable(odom_publisher src/odom_publisher.cpp)
 add_executable(tf_combine_frames src/tf_combine_frames.cpp)
-add_executable(cmd_publisher src/cmd_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,20 +147,14 @@ add_executable(cmd_publisher src/cmd_publisher.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(odom_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(cmd_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(static_tf_broadcaster ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(tf_combine_frames ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(static_tf_broadcaster
   ${catkin_LIBRARIES}
 )
-target_link_libraries(odom_publisher
-  ${catkin_LIBRARIES}
-)
 target_link_libraries(tf_combine_frames
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(cmd_publisher
   ${catkin_LIBRARIES}
 )
 

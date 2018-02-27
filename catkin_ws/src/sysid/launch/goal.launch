@@ -19,6 +19,9 @@
         <node name="tf_combine_frames" pkg="tf_broadcaster" type="tf_combine_frames" output="screen" if="$(arg combine_frames)" /> 
         
     <!-- 1D GOAL -->
-        <node name="goal" pkg="sysid" type="goal" output="screen" />
+        <node name="goal" pkg="sysid" type="goal" output="screen" >
+            <param name="pose_topic" value="laser_scan_matcher/pose" if="$(arg use_scan_matcher)" />
+            <param name="pose_topic" value="hector_mapping/slam_out_pose" if="$(arg use_slam)" />
+        </node>
     
 </launch>

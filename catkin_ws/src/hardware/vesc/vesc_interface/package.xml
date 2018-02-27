@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>vesc_interface</name>
+  <version>0.0.1</version>
+  <description>
+    The vesc_interface package
+    Pulish odom from vesc msg
+    Publish command to vesc from ackermann msg
+    Adapted from vesc_ackermann package by Michael T. Boulet at mit-racecar
+  </description>
+
+  <maintainer email="boulet@ll.mit.edu">Michael T. Boulet</maintainer>
+  <author email="boulet@ll.mit.edu">Michael T. Boulet</author>
+  <license>BSD</license>
+
+  <url type="website">http://www.ros.org/wiki/vesc_ackermann</url>
+  <url type="repository">https://github.mit.edu/racecar/racecar-iap</url>
+  <url type="bugtracker">https://github.mit.edu/racecar/racecar-iap/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>ackermann_msgs</build_depend>
+  <build_depend>vesc_msgs</build_depend>
+  
+  <build_export_depend>pluginlib</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>nav_msgs</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
+  <build_export_depend>tf</build_export_depend>
+  <build_export_depend>ackermann_msgs</build_export_depend>
+  <build_export_depend>vesc_msgs</build_export_depend>
+  
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>ackermann_msgs</exec_depend>
+  <exec_depend>vesc_msgs</exec_depend>
+
+  <export>
+  </export>
+
+</package>

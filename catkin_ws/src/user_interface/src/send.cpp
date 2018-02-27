@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <ros/ros.h>
-#include <teensy_msgs/Command.h>
+#include <ackermann_msgs/AckermannDriveStamped.h>
 
 int
 main(int argc, char ** argv)
 {
     ros::init(argc, argv, "send_cmd");
     ros::NodeHandle nh;
-    ros::Publisher pub_cmd = nh.advertise<teensy_msgs::Command>("/teensy/command", 10);
-    teensy_msgs::Command cmd;
+    ros::Publisher pub_cmd = nh.advertise<ackermann_msgs::AckermannDriveStamped>("/commands/keyboard", 10);
+    ackermann_msgs::AckermannDriveStamped cmd;
     char str[32];
     char cmd_c;
     float cmd_val;
@@ -21,19 +21,20 @@ main(int argc, char ** argv)
         sscanf(str, "%c%f", &cmd_c, &cmd_val);
         
         if (cmd_c=='v') {
-            cmd.vel_mps = cmd_val;
+            cmd.drive.speed = cmd_val;
             printf("Velocity set to %f m/s\n", cmd_val);
         } else if (cmd_c=='s') {
-            cmd.steering_rad = cmd_val*3.1416/180.0;
+            cmd.drive.steering_angle = cmd_val*3.1416/180.0;
             printf("Steering angle set to %f degrees\n", cmd_val);
         }
         else if (cmd_c=='q') {
-            cmd.vel_mps = 0;
-            cmd.steering_rad = 0;
+            cmd.drive.speed = 0;
+            cmd.drive.steering_angle = 0;
             pub_cmd.publish(cmd);
             break;
         }
 
+        cmd.header.stamp = ros::Time::now();
         pub_cmd.publish(cmd);
         
     }
