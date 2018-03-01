@@ -2,10 +2,11 @@
 #define MULTIPLEXER_H_
 
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 #include <ackermann_msgs/AckermannDriveStamped.h>
 #include <geometry_msgs/Twist.h>
 
-#define JOY_PRIORITY     3  // top priority
+#define JOY_PRIORITY     3 // top priority
 #define KB_PRIORITY      2
 #define NAV_PRIORITY     1
 #define DEFAULT_PRIORITY 0
@@ -32,6 +33,7 @@ namespace vesc_interface
 
         // ROS services
         ros::Publisher ackermann_pub_;
+        ros::Subscriber estop_sub_;
         ros::Subscriber joy_sub_;
         ros::Subscriber kb_sub_;
         ros::Subscriber nav_sub_;
@@ -41,6 +43,7 @@ namespace vesc_interface
         ackermann_msgs::AckermannDriveStamped ackermann_msg_;
         
         // ROS callbacks
+        void estopCallback(const std_msgs::Bool::ConstPtr& msg);
         void joyCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
         void kbCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
         void navCallback(const geometry_msgs::Twist::ConstPtr& msg);

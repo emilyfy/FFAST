@@ -34,7 +34,7 @@ int main(int argc, char ** argv)
 
     ackermann_msgs::AckermannDriveStamped cmd;
     
-    ros::Rate r(200);
+    ros::Rate r(20);
     
     while (ros::ok())
     {

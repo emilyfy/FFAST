@@ -118,21 +118,23 @@ int main(int argc, char **argv)
             ros::spinOnce();
             outstream << lat_acc << "," << steering_ang << "," << yaw_rate << "," << long_vel << "," << yaw_rate_dot << "," ;
             outstream << mass*wheelbase*lat_acc << "," << I_zz*yaw_rate_dot+mass*wheelbase_r*lat_acc << std::endl;
+            cmd_pub.publish(cmd);
             log_rate.sleep();
         }
     }
-    
+
     // for( steering_ang_deg = 30 ; steering_ang_deg >= 0 && ros::ok() ; steering_ang_deg-- ) {
     //     cmd.drive.steering_angle = steering_ang_deg*M_PI/180.0;
     //     cmd_pub.publish(cmd);
     //     ROS_INFO("Running at steering angle %d degrees.", steering_ang_deg);
 
     //     ros::Time start_time = ros::Time::now();
-    //     while ( (ros::Time::now() - start_time).toSec() < 1.0 ) {
+    //     while ( (ros::Time::now() - start_time).toSec() < 1.0 && ros::ok() ) {
     //         ros::spinOnce();
     //         outstream << lat_acc << "," << steering_ang << "," << yaw_rate << "," << long_vel << "," << yaw_rate_dot << "," ;
     //         outstream << mass*wheelbase*lat_acc << "," << I_zz*yaw_rate_dot+mass*wheelbase_r*lat_acc << std::endl;
-    //         r.sleep();
+    //         cmd_pub.publish(cmd);
+    //         log_rate.sleep();
     //     }
     // }
 

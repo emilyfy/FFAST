@@ -6,7 +6,7 @@
     <arg name="vesc_path" default="/dev/VESC" />
     <arg name="odom_tf" default="false" />
     <arg name="odom_covariance" default="0.1" />
-    <include file="$(find vesc)/vesc.launch">
+    <include file="$(find vesc)/vesc.launch" >
         <arg name="vesc_path" value="$(arg vesc_path)" />
         <arg name="odom_tf" value="$(arg odom_tf)" />
         <arg name="odom_covariance" value="$(arg odom_covariance)" />
@@ -15,7 +15,7 @@
     <!-- LIDAR -->
     <arg name="lidar_path" default="/dev/Hokuyo" />
     <node
-        name="hokuyo" pkg="urg_node" type="urg_node" respawn="true" output="screen">
+        name="hokuyo" pkg="urg_node" type="urg_node" respawn="true" output="screen" >
         <param name="serial_port" value="$(arg lidar_path)" />
         <param name="frame_id" value="base_lidar" />
         <remap from="laser_status" to="hokuyo/laser_status" />
@@ -25,11 +25,14 @@
     <arg name="imu_path" default="/dev/VMU931" />
     <arg name="publish_vmu931" default="false" />
     <node
-        name="vmu931" pkg="vmu931" type="vmu931_node" respawn="true" output="screen">
+        name="vmu931" pkg="vmu931" type="vmu931_node" respawn="true" output="screen" >
         <param name="serial_port" value="$(arg imu_path)" />
         <param name="pub_vmu931" value="$(arg publish_vmu931)" />
     </node>
 
+    <!-- Estop -->
+    <node name="estop_node" pkg="jetson_gpio" type="estop_node" respawn="true" output="screen" launch-prefix="sudo -E" />
+    
     <!-- Static TF Broadcaster -->
     <node name="static_tf_broadcaster" pkg="tf_broadcaster" type="static_tf_broadcaster" respawn="true" />
     

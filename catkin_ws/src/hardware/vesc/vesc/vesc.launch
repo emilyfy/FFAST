@@ -1,19 +1,21 @@
 <launch>
 
-    <arg name="vesc_path" />
-    <arg name="odom_tf" />
-    <arg name="odom_covariance" />
+    <arg name="vesc_path" default="/dev/VESC" />
+    <arg name="odom_tf" default="false" />
+    <arg name="odom_covariance" default="0.1" />
 
     <!-- driver -->
     <node
-        name="vesc_driver" pkg="vesc_driver" type="vesc_driver_node" respawn="true" output="screen">
+        name="vesc_driver" pkg="vesc_driver" type="vesc_driver_node" respawn="true" >
         <param name="port" value="$(arg vesc_path)" />
         <rosparam file="$(find hardware)/config/vesc_driver.yaml" command="load" />
     </node>
+
+    <rosparam file="$(find hardware)/config/vehicle_params.yaml" command="load" />
     
     <!-- odom publisher -->
     <node
-        name="odom_publisher" pkg="vesc_interface" type="odom_publisher_node" respawn="true">
+        name="odom_publisher" pkg="vesc_interface" type="odom_publisher_node" respawn="true" >
         <param name="odom_covariance" value="$(arg odom_covariance)" />
         <param name="publish_tf" value="$(arg odom_tf)" />
     </node>
@@ -22,6 +24,6 @@
     <node name="vesc_command_publisher" pkg="vesc_interface" type="cmd_publisher_node" respawn="true" />
     
     <!-- multiplexer -->
-    <node name="multiplexer" pkg="vesc_interface" type="multiplexer_node" respawn="true" />
+    <node name="command_multiplexer" pkg="vesc_interface" type="multiplexer_node" respawn="true" output="screen" />
 
 </launch>

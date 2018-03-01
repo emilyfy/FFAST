@@ -83,6 +83,7 @@ namespace estimation
     nh_private.param("gps_used",   gps_used_, false);
     nh_private.param("debug",   debug_, false);
     nh_private.param("self_diagnose",  self_diagnose_, false);
+    nh_private.param("publish_tf",  publish_tf_, true);
     double freq;
     nh_private.param("freq", freq, 30.0);
 
@@ -432,7 +433,8 @@ namespace estimation
           my_filter_.getEstimate(ros::Time(), tmp);
           if(!vo_active_ && !gps_active_)
             tmp.getOrigin().setZ(0.0);
-          odom_broadcaster_.sendTransform(StampedTransform(tmp, tmp.stamp_, output_frame_, base_footprint_frame_));
+          if (publish_tf_)
+            odom_broadcaster_.sendTransform(StampedTransform(tmp, tmp.stamp_, output_frame_, base_footprint_frame_));
           
           if (debug_){
             // write to file

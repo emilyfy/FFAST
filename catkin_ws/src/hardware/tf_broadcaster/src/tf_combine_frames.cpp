@@ -1,14 +1,14 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 
-geometry_msgs::PoseWithCovarianceStamped map_base_link;
+geometry_msgs::PoseStamped map_base_link;
 geometry_msgs::TransformStamped odom_trans;
 geometry_msgs::TransformStamped odom_combined_trans;
 ros::Time last_map_cb_time;
 
-void mapCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
+void mapCallback(const geometry_msgs::PoseStamped& msg)
 {
     map_base_link = msg;
     last_map_cb_time = ros::Time::now();
@@ -18,13 +18,13 @@ void odomCallback(const nav_msgs::Odometry& odom)
 {
     if (ros::Time::now() - last_map_cb_time > ros::Duration(1)) return;
     
-    odom_trans.transform.translation.x = map_base_link.pose.pose.position.x - odom.pose.pose.position.x;
-    odom_trans.transform.translation.y = map_base_link.pose.pose.position.y - odom.pose.pose.position.y;
-    odom_trans.transform.translation.z = map_base_link.pose.pose.position.z - odom.pose.pose.position.z;
+    odom_trans.transform.translation.x = map_base_link.pose.position.x - odom.pose.pose.position.x;
+    odom_trans.transform.translation.y = map_base_link.pose.position.y - odom.pose.pose.position.y;
+    odom_trans.transform.translation.z = map_base_link.pose.position.z - odom.pose.pose.position.z;
     
     tf::Quaternion odom_quat, map_quat;
     tf::quaternionMsgToTF(odom.pose.pose.orientation, odom_quat);
-    tf::quaternionMsgToTF(map_base_link.pose.pose.orientation, map_quat);
+    tf::quaternionMsgToTF(map_base_link.pose.orientation, map_quat);
     tf::quaternionTFToMsg(map_quat*odom_quat.inverse(),odom_trans.transform.rotation);
 
     odom_trans.header.stamp = ros::Time::now();
@@ -36,13 +36,13 @@ void odomCombinedCallback(const nav_msgs::Odometry& odom_combined)
 {
     if (ros::Time::now() - last_map_cb_time > ros::Duration(1)) return;
     
-    odom_combined_trans.transform.translation.x = map_base_link.pose.pose.position.x - odom_combined.pose.pose.position.x;
-    odom_combined_trans.transform.translation.y = map_base_link.pose.pose.position.y - odom_combined.pose.pose.position.y;
-    odom_combined_trans.transform.translation.z = map_base_link.pose.pose.position.z - odom_combined.pose.pose.position.z;
+    odom_combined_trans.transform.translation.x = map_base_link.pose.position.x - odom_combined.pose.pose.position.x;
+    odom_combined_trans.transform.translation.y = map_base_link.pose.position.y - odom_combined.pose.pose.position.y;
+    odom_combined_trans.transform.translation.z = map_base_link.pose.position.z - odom_combined.pose.pose.position.z;
     
     tf::Quaternion odom_combined_quat, map_quat;
     tf::quaternionMsgToTF(odom_combined.pose.pose.orientation, odom_combined_quat);
-    tf::quaternionMsgToTF(map_base_link.pose.pose.orientation, map_quat);
+    tf::quaternionMsgToTF(map_base_link.pose.orientation, map_quat);
     tf::quaternionTFToMsg(map_quat*odom_combined_quat.inverse(),odom_combined_trans.transform.rotation);
 
     odom_combined_trans.header.stamp = ros::Time::now();

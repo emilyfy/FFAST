@@ -1,23 +1,26 @@
 <launch>
+
+    <!-- Combine map and odom frames to view both in rviz (because scan matcher tf map to base_link directly). -->
+    <!-- Then set either ekf_tf here to true or odom_tf in hardware.launch to true -->
+    <arg name="combine_frames" default="false" />
     
     <!-- EKF -->
     <arg name="use_ekf" default="true" />
     <arg name="ekf_tf" default="false" />
     <group if="$(arg use_ekf)">
         <include file="$(find robot_pose_ekf)/robot_pose_ekf.launch">
-            <arg name="base_footprint_frame" value="base_link" if="$(arg ekf_tf)" />
+            <arg name="base_footprint_frame" value="base_link" />
             <arg name="odom_used" value="true" />
             <arg name="imu_used" value="true" />
             <arg name="vo_used" value="false" />
             <arg name="remap_frame" value="odom" />
             <arg name="remap_imu" value="imu" />
+            <arg name="publish_tf" value="false" unless="$(arg ekf_tf)" />
         </include>
     </group>
     
     <!-- Laser Scan Matcher -->
     <arg name="use_scan_matcher" default="true" />
-    <!-- Combine map and odom frames to view both in rviz (because scan matcher tf map to base_link directly). Then set either ekf_tf here to true or odom_tf in hardware.launch to true -->
-    <arg name="combine_frames" default="false" />
     <arg name="scan_matcher_tf" default="true" />
     
     <group if="$(arg use_scan_matcher)">
@@ -32,6 +35,7 @@
             <param name="publish_tf" value="false" if="$(arg combine_frames)" />
             <param name="publish_pose" value="false" />
             <param name="publish_pose_stamped" value="true" />
+            
             <remap from="odom" to="robot_pose_ekf/odom_combined" if="$(arg use_ekf)" />
             <remap from="imu/data" to="imu" />
             <remap from="pose_stamped" to="laser_scan_matcher/pose" />

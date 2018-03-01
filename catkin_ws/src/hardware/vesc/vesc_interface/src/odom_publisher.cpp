@@ -28,6 +28,11 @@ OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
     if (!getRequiredParam(nh, "vesc_interface/tix_gain", tix_gain_))
         return;
     
+    // TODO - think about covariance
+    // should it be higher? should it increase with accel?
+    // maybe tix_gain should vary with accel?
+    // should we subscribe to imu? and also trust imu heading more than steering angle for yaw?
+
     pnh.param("publish_tf", publish_tf_, publish_tf_);
     if (pnh.getParam("odom_covariance", odom_covariance_)) {
         for(int i=0;i<6;i++) {
@@ -66,13 +71,14 @@ OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
 
 void OdomPublisher::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPtr& state)
 {
-    // check that we have a last servo command if we are depending on it for angular velocity
-    if (!last_servo_cmd_)
-        return;
     
     // convert to engineering units
     double current_speed = ( state->state.speed - speed_offset_ ) / speed_gain_;
-    double current_steering_angle = ( last_servo_cmd_->data - steering_offset_ ) / steering_gain_;
+    double current_steering_angle;    // check that we have a last servo command if we are depending on it for angular velocity
+    if (!last_servo_cmd_)
+        current_steering_angle = 0.0;
+    else
+        current_steering_angle = ( last_servo_cmd_->data - steering_offset_ ) / steering_gain_;
     
     double current_beta = atan( wheelbase_r_ * cos(current_beta) * tan(current_steering_angle) / wheelbase_ );
     double current_angular_velocity = current_speed * tan(current_steering_angle) / wheelbase_;
@@ -80,6 +86,7 @@ void OdomPublisher::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPt
     double current_disp = state->state.displacement;
     static double last_disp = current_disp;
     double chg_disp = (current_disp - last_disp) / tix_gain_;
+    last_disp = current_disp;
     
     // use current state as last state if this is our first time here
     if (!last_state_)
