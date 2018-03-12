@@ -1,27 +1,19 @@
 <launch>
     
-    <!-- HARDWARE -->
-        <include file="$(find hardware)/hardware.launch" />
+    # hardware
+    <include file="$(find hardware)/hardware.launch" />
     
-    <!-- LOCALIZATION -->
-        <arg name="use_scan_matcher" default="false" />
-        <arg name="use_slam" default="true" />
-    
-        <include file="$(find localization)/csm.launch" if="$(arg use_scan_matcher)" />
-        <include file="$(find localization)/slam.launch" if="$(arg use_slam)" />
+    # localization
+    <arg name="use_scan_matcher" default="false" />
+    <arg name="use_slam" default="true" />
+
+    <include file="$(find localization)/csm.launch" if="$(arg use_scan_matcher)" />
+    <include file="$(find localization)/slam.launch" if="$(arg use_slam)" />
         
-    <!-- RVIZ -->
-        <arg name="use_rviz" default="false" />
-        <include file="$(find user_interface)/rviz.launch" if="$(arg use_rviz)" />
-            
-        <!-- Combine map and odom frames to view both in rviz -->
-        <arg name="combine_frames" default="false" />
-        <node name="tf_combine_frames" pkg="tf_broadcaster" type="tf_combine_frames" output="screen" if="$(arg combine_frames)" /> 
-        
-    <!-- 1D GOAL -->
-        <node name="goal" pkg="sysid" type="goal" output="screen" >
-            <param name="pose_topic" value="laser_scan_matcher/pose" if="$(arg use_scan_matcher)" />
-            <param name="pose_topic" value="hector_mapping/slam_out_pose" if="$(arg use_slam)" />
-        </node>
+    # 1D goal
+    <node name="goal" pkg="sysid" type="goal" output="screen" >
+        <param name="pose_topic" value="laser_scan_matcher/pose" if="$(arg use_scan_matcher)" />
+        <param name="pose_topic" value="hector_mapping/slam_out_pose" if="$(arg use_slam)" />
+    </node>
     
 </launch>

@@ -1,0 +1,35 @@
+<launch>
+    
+    <arg name="fuse_odom" default="true" />
+    <arg name="use_scan_matcher" default="true" />
+    <arg name="use_amcl" default="false" />
+    <arg name="map" if="$(arg use_amcl)" />
+    
+    <rosparam command="load" file="$(find localization)/localization.yaml" />
+    
+    # Laser Scan Matcher
+    <node
+        name="scan_matcher" pkg="laser_scan_matcher" type="laser_scan_matcher_node" output="screen" respawn="true" if="$(arg use_scan_matcher)">
+        <remap from="odom" to="odom_fused" if="$(arg fuse_odom)" />
+        <remap from="imu/data" to="imu" />
+        <remap from="pose_with_covariance_stamped" to="scan_matcher/pose" />
+    </node>
+    
+    # AMCL
+    <group if="$(arg use_amcl)">
+        <node name="map_server" pkg="map_server" type="map_server" args="$(find ffast)/map/$(arg map).yaml" />
+        <node pkg="amcl" type="amcl" name="amcl" output="screen">
+            <remap from="amcl_pose" to="amcl/pose" />
+        </node>
+    </group>
+
+    # EKF localization
+    <node name="ekf_localization" pkg="robot_localization" type="ekf_localization_node" clear_params="true" output="screen">
+        <param name="odom0" value="odom" unless="$(arg fuse_odom)" />
+        <param name="odom0" value="odom_fused" if="$(arg fuse_odom)" />
+        <param name="pose0" value="scan_matcher/pose" if="$(arg use_scan_matcher)" />
+        <param name="pose1" value="amcl/pose" if="$(arg use_amcl)" />
+        <remap from="odometry/filtered" to="ekf_localization/odom"/>
+    </node>
+    
+</launch>

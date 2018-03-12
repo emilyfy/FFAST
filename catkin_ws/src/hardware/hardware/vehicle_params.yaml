@@ -1,0 +1,11 @@
+gear_ratio: 5.62
+wheel_rad: 0.03235
+max_steering_angle: 0.523
+min_turning_radius: 0.5
+mass: 2.596
+I_zz: 0.0558
+
+wheelbase: 0.257
+wheelbase_f: 0.115
+wheelbase_r: 0.142
+trackwidth: 0.165

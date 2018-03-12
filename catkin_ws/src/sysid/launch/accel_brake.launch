@@ -1,0 +1,21 @@
+<launch>
+
+    <arg name="fuse_odom" default="false" />
+    <arg name="predict_slip" default="false" />
+    <arg name="use_amcl" default="false" />
+
+    # hardware
+    <include file="$(find hardware)/hardware.launch" >
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
+        <arg name="predict_slip" value="$(arg predict_slip)" />
+    </include>
+    
+    # localization
+    <include file="$(find localization)/localization.launch" >
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
+        <arg name="use_amcl" value="$(arg use_amcl)" />
+    </include>
+
+    <node name="accel_brake" pkg="sysid" type="accel_brake" required="true" output="screen" />
+
+</launch>

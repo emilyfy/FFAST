@@ -21,7 +21,6 @@ namespace vesc_interface
             double speed_gain_, speed_offset_;
             double steering_gain_, steering_offset_;
             double tix_gain_;
-            double odom_covariance_;
             double wheelbase_, wheelbase_r_;
             bool publish_tf_;
 

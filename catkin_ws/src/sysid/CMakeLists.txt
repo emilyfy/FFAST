@@ -137,7 +137,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(goal src/goal1d.cpp)
 add_executable(ramp_steer src/ramp_steer.cpp)
-add_executable(friction_coeff src/friction_coeff.cpp)
+add_executable(accel_brake src/accel_brake.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,7 +149,7 @@ add_executable(friction_coeff src/friction_coeff.cpp)
 ## same as for the library above
 add_dependencies(goal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(ramp_steer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(friction_coeff ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(accel_brake ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(goal
@@ -158,7 +158,7 @@ ${catkin_LIBRARIES}
 target_link_libraries(ramp_steer
   ${catkin_LIBRARIES}
 )
-target_link_libraries(friction_coeff
+target_link_libraries(accel_brake
   ${catkin_LIBRARIES}
 )
 

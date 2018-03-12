@@ -10,6 +10,7 @@ project(vmu931)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  sensor_msgs
   geometry_msgs
   message_generation
 )
@@ -134,7 +135,7 @@ add_library(${PROJECT_NAME}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/vmu931_node.cpp)
+add_executable(${PROJECT_NAME}_node src/vmu931_node.cpp src/vmu931.cpp src/msg_utils.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

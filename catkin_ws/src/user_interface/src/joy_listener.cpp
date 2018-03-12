@@ -2,6 +2,7 @@
 #include <sensor_msgs/Joy.h>
 #include <ackermann_msgs/AckermannDriveStamped.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 
 #define B_TOGGLE_ACTIVATION  buttons[0]
 #define B_BRAKE              buttons[1]
@@ -9,12 +10,13 @@
 #define A_VEL                axes[4]
 #define A_STEER              axes[0]
 
-#define MAX_VEL_MPS     6.0
-#define MIN_VEL_MPS    -3.0
+#define MAX_VEL_MPS     3.0
+#define MIN_VEL_MPS    -2.0
 #define MAX_STEER_RAD (M_PI/6)
 
 ros::Publisher cmd_pub;
 ros::Publisher brake_pub;
+ros::Publisher estop_pub;
 
 void joyCb(const sensor_msgs::Joy& msg)
 {
@@ -28,12 +30,16 @@ void joyCb(const sensor_msgs::Joy& msg)
         else { ROS_INFO("Joy deactivated."); }
     }
 
+    static std_msgs::Bool estop_msg;
     if (msg.B_STOP)
     {
-        cmd.drive.speed = 0;
-        cmd.drive.steering_angle = 0;
-        cmd.header.stamp = ros::Time::now();
-        cmd_pub.publish(cmd);
+        estop_msg.data = true;
+        estop_pub.publish(estop_msg);
+    }
+    else if (estop_msg.data)
+    {
+        estop_msg.data = false;
+        estop_pub.publish(estop_msg);
     }
 
     if (active)
@@ -70,6 +76,7 @@ int main(int argc, char **argv)
     ros::Subscriber joy_sub = nh.subscribe("/joy",10,joyCb);
     cmd_pub = nh.advertise<ackermann_msgs::AckermannDriveStamped>("commands/joy", 10);
     brake_pub = nh.advertise<std_msgs::Float64>("commands/motor/brake", 10);
+    estop_pub = nh.advertise<std_msgs::Bool>("/commands/estop",1);
     
     ros::spin();
     return 0;

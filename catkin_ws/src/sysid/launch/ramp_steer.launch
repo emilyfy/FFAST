@@ -1,14 +1,24 @@
 <launch>
 
-    <include file="$(find vesc)/vesc.launch">
-        <arg name="vesc_path" value="/dev/VESC" />
+    <arg name="fuse_odom" default="true" />
+    <arg name="predict_slip" default="false" />
+    <arg name="use_amcl" default="true" />
+    <arg name="map" default="basement_center" />
+
+    # hardware
+    <include file="$(find hardware)/hardware.launch" >
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
+        <arg name="predict_slip" value="$(arg predict_slip)" />
+    </include>
+    
+    # localization
+    <include file="$(find localization)/localization.launch" >
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
+        <arg name="use_amcl" value="$(arg use_amcl)" />
     </include>
 
-    <node
-        name="vmu931" pkg="vmu931" type="vmu931_node" respawn="true" output="screen">
-        <param name="serial_port" value="/dev/VMU931" />
+    <node name="ramp_steer" pkg="sysid" type="ramp_steer" required="true" output="screen">
+        <remap from="odom_fused" to="odom" unless="$(arg fuse_odom)" />
     </node>
-
-    <node name="ramp_steer" pkg="sysid" type="ramp_steer" required="true" output="screen" />
 
 </launch>

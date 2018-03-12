@@ -133,7 +133,7 @@ namespace vesc_interface
                 // ROS_INFO("Command multiplexer received no input - set to default.");
                 ackermann_msg_.header.stamp = curr_time;
                 ackermann_msg_.drive.speed = 0.0;
-                ackermann_msg_.drive.steering_angle = 0.0;
+                // ackermann_msg_.drive.steering_angle = 0.0;
                 ackermann_pub_.publish(ackermann_msg_);
             }
         }

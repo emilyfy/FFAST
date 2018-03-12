@@ -1,3 +1,6 @@
+// Covariance of y and yaw constant
+// x covariance increase with speed
+
 #include "vesc_interface/odom_publisher.h"
 
 #include <cmath>
@@ -11,7 +14,7 @@ template <typename T>
 inline bool getRequiredParam(const ros::NodeHandle& n, std::string name, T& value);
 
 OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
-    publish_tf_(false), x_(0.0), y_(0.0), yaw_(0.0)
+    publish_tf_(true), x_(0.0), y_(0.0), yaw_(0.0)
 {
     if (!getRequiredParam(nh, "vesc_interface/speed_gain", speed_gain_))
         return;
@@ -27,19 +30,8 @@ OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
         return;
     if (!getRequiredParam(nh, "vesc_interface/tix_gain", tix_gain_))
         return;
-    
-    // TODO - think about covariance
-    // should it be higher? should it increase with accel?
-    // maybe tix_gain should vary with accel?
-    // should we subscribe to imu? and also trust imu heading more than steering angle for yaw?
-
     pnh.param("publish_tf", publish_tf_, publish_tf_);
-    if (pnh.getParam("odom_covariance", odom_covariance_)) {
-        for(int i=0;i<6;i++) {
-                odom_.pose.covariance[6*i+i] = odom_covariance_;
-                odom_.twist.covariance[6*i+i] = odom_covariance_;
-        }
-    }
+
     // create odom publisher
     odom_pub_ = nh.advertise<nav_msgs::Odometry>("odom", 10);
 
@@ -48,7 +40,7 @@ OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
         tf_pub_.reset(new tf::TransformBroadcaster);
     }
 
-    // subscribe to vesc state and. optionally, servo command
+    // subscribe to vesc state and servo command
     vesc_state_sub_ = nh.subscribe("sensors/core", 10, &OdomPublisher::vescStateCallback, this);
     servo_sub_ = nh.subscribe("sensors/servo_position_command", 10, &OdomPublisher::servoCmdCallback, this);
 
@@ -59,6 +51,11 @@ OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
     odom_.pose.pose.orientation.x = 0.0;
     odom_.pose.pose.orientation.y = 0.0;
     odom_.twist.twist.linear.y = 0.0;
+    // non varying covariance values: y, yaw
+    odom_.pose.covariance[6*1+1] = 0.5;  // m^2
+    odom_.pose.covariance[6*5+5] = 0.5;  // rad^2
+    odom_.twist.covariance[6*1+1] = 0.5; // (m/s)^2
+    odom_.twist.covariance[6*5+5] = 0.5; // (rad/s)^2
 
     // set static values in tf_
     if (publish_tf_)
@@ -71,7 +68,11 @@ OdomPublisher::OdomPublisher(ros::NodeHandle nh, ros::NodeHandle pnh) :
 
 void OdomPublisher::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPtr& state)
 {
-    
+
+    // use current state as last state if this is our first time here
+    if (!last_state_)
+        last_state_ = state;
+
     // convert to engineering units
     double current_speed = ( state->state.speed - speed_offset_ ) / speed_gain_;
     double current_steering_angle;    // check that we have a last servo command if we are depending on it for angular velocity
@@ -85,24 +86,24 @@ void OdomPublisher::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPt
     
     double current_disp = state->state.displacement;
     static double last_disp = current_disp;
-    double chg_disp = (current_disp - last_disp) / tix_gain_;
-    last_disp = current_disp;
     
-    // use current state as last state if this is our first time here
-    if (!last_state_)
-        last_state_ = state;
-
     // calc elapsed time
     ros::Duration dt = state->header.stamp - last_state_->header.stamp;
 
     // propigate odometry
-    x_ += chg_disp * cos(yaw_ + current_beta);
-    y_ += chg_disp * sin(yaw_ + current_beta);
+    double ds = (current_disp - last_disp) / tix_gain_;
+    x_ += ds * cos(yaw_ + current_beta);
+    y_ += ds * sin(yaw_ + current_beta);
     yaw_ += current_angular_velocity * dt.toSec();
+
+    // calculate speed dependent x covariance
+    odom_.pose.covariance[0] = 0.1 + 0.001 * fabs(current_speed);
+    odom_.twist.covariance[0] = 0.1 + 0.001 * fabs(current_speed);
 
     // save state for next time
     last_state_ = state;
-
+    last_disp = current_disp;
+    
     // publish odometry message
     odom_.header.stamp = state->header.stamp;
     odom_.pose.pose.position.x = x_;

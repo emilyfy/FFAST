@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "odometry_publisher");
+  ros::init(argc, argv, "odom_publisher");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 

@@ -17,25 +17,25 @@ namespace vesc_interface
         max_speed_chg_(0.0), max_pos_chg_(0.0)
     {
         // get conversion and smoothing parameters
-        if (!getRequiredParam(nh, "vesc_interface/speed_gain", speed_gain_))
+        if (!getRequiredParam(pnh, "speed_gain", speed_gain_))
             return;
-        if (!getRequiredParam(nh, "vesc_interface/speed_offset", speed_offset_))
+        if (!getRequiredParam(pnh, "speed_offset", speed_offset_))
             return;
-        if (!getRequiredParam(nh, "vesc_interface/steering_gain", steering_gain_))
+        if (!getRequiredParam(pnh, "steering_gain", steering_gain_))
             return;
-        if (!getRequiredParam(nh, "vesc_interface/steering_offset", steering_offset_))
+        if (!getRequiredParam(pnh, "steering_offset", steering_offset_))
             return;
         
-        if (!nh.getParam("vesc_interface/max_motor_accel", max_motor_accel_)) {
+        if (!pnh.getParam("max_motor_accel", max_motor_accel_)) {
             limit_motor_ = false;
         } else limit_motor_ = true;
-        if (!nh.getParam("vesc_interface/motor_smoother_rate", motor_smoother_rate_)) {
+        if (!pnh.getParam("motor_smoother_rate", motor_smoother_rate_)) {
             smooth_motor_ = false;
         } else smooth_motor_ = true;
-        if (!nh.getParam("vesc_interface/max_servo_speed", max_servo_speed_)) {
+        if (!pnh.getParam("max_servo_speed", max_servo_speed_)) {
             limit_servo_ = false;
         } else limit_servo_ = true;
-        if (!nh.getParam("vesc_interface/servo_smoother_rate", servo_smoother_rate_)) {
+        if (!pnh.getParam("servo_smoother_rate", servo_smoother_rate_)) {
             smooth_servo_ = false;
         } else smooth_servo_ = true;
 
@@ -77,7 +77,7 @@ namespace vesc_interface
             if (limit_motor_) {
                 ros::Time curr_time = ros::Time::now();
                 ros::Duration dt = curr_time - last_pub_motor_time_;
-                max_speed_chg_ = abs(speed_gain_ * max_motor_accel_ * dt.toSec());
+                max_speed_chg_ = fabs(speed_gain_ * max_motor_accel_ * dt.toSec());
                 chg_speed = std::max(std::min(chg_speed, max_speed_chg_), -max_speed_chg_);
             }
             last_speed_ += chg_speed;
@@ -95,7 +95,7 @@ namespace vesc_interface
             if (limit_servo_) {
                 ros::Time curr_time = ros::Time::now();
                 ros::Duration dt = curr_time - last_pub_servo_time_;
-                max_pos_chg_ = abs(steering_gain_ * max_servo_speed_ * dt.toSec());
+                max_pos_chg_ = fabs(steering_gain_ * max_servo_speed_ * dt.toSec());
                 chg_pos = std::max(std::min(chg_pos, max_pos_chg_), -max_pos_chg_);
             }
             last_pos_ += chg_pos;

@@ -1,0 +1,22 @@
+<launch>
+
+    <arg name="fuse_odom" default="true" />
+    <arg name="predict_slip" default="true" />
+    <arg name="use_amcl" default="false" />
+    
+    # hardware
+    <include file="$(find hardware)/hardware.launch" >
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
+        <arg name="predict_slip" value="$(arg predict_slip)" />
+    </include>
+
+    # localization
+    <include file="$(find localization)/localization.launch" >
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
+        <arg name="use_amcl" value="$(arg use_amcl)" />
+    </include>
+    
+    # planning
+    <include file="$(find planning)/launch/move_base.launch" />
+    
+</launch>

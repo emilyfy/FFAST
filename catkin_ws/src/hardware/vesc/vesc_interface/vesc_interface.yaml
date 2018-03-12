@@ -1,0 +1,13 @@
+speed_gain: -1660.0
+speed_offset: 0.0
+
+steering_gain: 0.40972
+steering_offset: 0.482
+
+tix_gain: -166.0
+
+max_motor_accel: 2.5 # meters/second^2
+#motor_smoother_rate: 75.0 # messages/sec
+
+max_servo_speed: 3.2 # radians/second
+#servo_smoother_rate: 75.0 # messages/sec

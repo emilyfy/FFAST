@@ -1,39 +1,49 @@
 <launch>
+
+    <arg name="fuse_odom" default="true" />
+    <arg name="odom_tf" default="true" />
+
+    <rosparam file="$(find hardware)/vehicle_params.yaml" command="load" ns="vehicle" />
     
-    <rosparam file="$(find hardware)/config/vehicle_params.yaml" command="load" />
-    
-    <!-- VESC -->
+    # VESC
     <arg name="vesc_path" default="/dev/VESC" />
-    <arg name="odom_tf" default="false" />
-    <arg name="odom_covariance" default="0.1" />
     <include file="$(find vesc)/vesc.launch" >
         <arg name="vesc_path" value="$(arg vesc_path)" />
+        <arg name="fuse_odom" value="$(arg fuse_odom)" />
         <arg name="odom_tf" value="$(arg odom_tf)" />
-        <arg name="odom_covariance" value="$(arg odom_covariance)" />
     </include>
 
-    <!-- LIDAR -->
+    # fused odom publisher
+    <arg name="predict_slip" default="true" />
+    <node name="fused_odom_publisher" pkg="tf_broadcaster" type="fused_odom_publisher" respawn="true" if="$(arg fuse_odom)" >
+        <param name="publish_tf" value="$(arg odom_tf)" />
+        <param name="predict_slip" value="$(arg predict_slip)" />
+        <rosparam file="$(find tf_broadcaster)/predict_slip.yaml" command="load" />
+    </node>
+
+    # LIDAR
     <arg name="lidar_path" default="/dev/Hokuyo" />
     <node
         name="hokuyo" pkg="urg_node" type="urg_node" respawn="true" output="screen" >
         <param name="serial_port" value="$(arg lidar_path)" />
         <param name="frame_id" value="base_lidar" />
         <remap from="laser_status" to="hokuyo/laser_status" />
+        <remap from="diagnostics" to="hokuyo/diagnostics" />
     </node>
     
-    <!-- IMU -->
+    # IMU
     <arg name="imu_path" default="/dev/VMU931" />
     <arg name="publish_vmu931" default="false" />
     <node
-        name="vmu931" pkg="vmu931" type="vmu931_node" respawn="true" output="screen" >
+        name="vmu931" pkg="vmu931" type="vmu931_node" required="true" output="screen" >
         <param name="serial_port" value="$(arg imu_path)" />
-        <param name="pub_vmu931" value="$(arg publish_vmu931)" />
+        <param name="publish_vmu931" value="$(arg publish_vmu931)" />
     </node>
 
-    <!-- Estop -->
+    # estop
     <node name="estop_node" pkg="jetson_gpio" type="estop_node" respawn="true" output="screen" launch-prefix="sudo -E" />
     
-    <!-- Static TF Broadcaster -->
+    # Static TF Broadcaster
     <node name="static_tf_broadcaster" pkg="tf_broadcaster" type="static_tf_broadcaster" respawn="true" />
     
 </launch>
