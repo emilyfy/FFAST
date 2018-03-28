@@ -10,7 +10,7 @@
 #define KB_PRIORITY      2
 #define NAV_PRIORITY     1
 #define DEFAULT_PRIORITY 0
-#define TIMEOUT         0.5 // 0.5 seconds
+#define TIMEOUT         1.0 // 1.0 seconds
 
 namespace vesc_interface
 {
@@ -46,7 +46,7 @@ namespace vesc_interface
         void estopCallback(const std_msgs::Bool::ConstPtr& msg);
         void joyCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
         void kbCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
-        void navCallback(const geometry_msgs::Twist::ConstPtr& msg);
+        void navCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
 
         // timer callback to publish
         void pubTimerCallback(const ros::TimerEvent& event);

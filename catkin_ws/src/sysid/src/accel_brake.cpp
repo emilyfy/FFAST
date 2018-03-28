@@ -44,7 +44,8 @@ void poseCb(const nav_msgs::Odometry& msg)
 
 void imuCb(const sensor_msgs::Imu& msg)
 {
-    acc_imu = msg.linear_acceleration.x * -1.0;
+    // acc_imu = msg.linear_acceleration.x * -1.0;
+    acc_imu = msg.linear_acceleration.x;    
 }
 
 void odomCb(const nav_msgs::Odometry& msg)

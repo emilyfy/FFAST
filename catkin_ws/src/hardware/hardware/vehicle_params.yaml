@@ -9,3 +9,8 @@ wheelbase: 0.257
 wheelbase_f: 0.115
 wheelbase_r: 0.142
 trackwidth: 0.165
+
+C_x: 116
+C_a: 197
+mu: 1.31
+mu_s: 0.55

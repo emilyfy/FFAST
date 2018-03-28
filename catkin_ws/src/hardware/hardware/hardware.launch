@@ -40,6 +40,14 @@
         <param name="publish_vmu931" value="$(arg publish_vmu931)" />
     </node>
 
+    # Camera
+    <node name="gscam" pkg="gscam" type="gscam" output="screen">
+        <param name="camera_name" value="default" />
+        <param name="camera_info_url" value="package://hardware/camera_info.ini"/>
+        <param name="gscam_config" value="nvcamerasrc sensor-id=0 ! video/x-raw(memory:NVMM),width=1280, height=720,format=I420, framerate=30/1 ! nvvidconv flip-method=0 ! video/x-raw, format=BGRx ! videoconvert ! ffmpegcolorspace "/>
+        <param name="frame_id" value="/base_camera"/>
+    </node>
+
     # estop
     <node name="estop_node" pkg="jetson_gpio" type="estop_node" respawn="true" output="screen" launch-prefix="sudo -E" />
     

@@ -45,7 +45,7 @@
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/PoseWithCovariance.h>
-#include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
@@ -172,7 +172,7 @@ class LaserScanMatcher
     void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg);
     void imuCallback (const sensor_msgs::Imu::ConstPtr& imu_msg);
     void velCallback (const geometry_msgs::Twist::ConstPtr& twist_msg);
-    void velStmpCallback(const geometry_msgs::TwistStamped::ConstPtr& twist_msg);
+    void velStmpCallback(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& twist_msg);
 
     void createCache (const sensor_msgs::LaserScan::ConstPtr& scan_msg);
     bool getBaseToLaserTf (const std::string& frame_id);

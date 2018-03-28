@@ -17,9 +17,9 @@ int main(int argc, char **argv)
     lidar_tf_stamped.header.stamp = ros::Time::now();
     lidar_tf_stamped.header.frame_id = "base_link";
     lidar_tf_stamped.child_frame_id = "base_lidar";
-    lidar_tf_stamped.transform.translation.x = 0.06785;
+    lidar_tf_stamped.transform.translation.x = 0.11575;
     lidar_tf_stamped.transform.translation.y = 0.0;
-    lidar_tf_stamped.transform.translation.z = 0.02072;
+    lidar_tf_stamped.transform.translation.z = 0.0667;
     lidar_tf_stamped.transform.rotation.x = 0;
     lidar_tf_stamped.transform.rotation.y = 0;
     lidar_tf_stamped.transform.rotation.z = 0;
@@ -28,13 +28,13 @@ int main(int argc, char **argv)
     imu_tf_stamped.header.stamp = ros::Time::now();
     imu_tf_stamped.header.frame_id = "base_link";
     imu_tf_stamped.child_frame_id = "base_imu";
-    imu_tf_stamped.transform.translation.x = 0.0;
+    imu_tf_stamped.transform.translation.x = 0.0479;
     imu_tf_stamped.transform.translation.y = 0.0;
-    imu_tf_stamped.transform.translation.z = 0.0;
+    imu_tf_stamped.transform.translation.z = 0.046;
     imu_tf_stamped.transform.rotation.x = 0;
     imu_tf_stamped.transform.rotation.y = 0;
-    imu_tf_stamped.transform.rotation.z = 1;
-    imu_tf_stamped.transform.rotation.w = 0;
+    imu_tf_stamped.transform.rotation.z = 0;
+    imu_tf_stamped.transform.rotation.w = 1;
 
     std::vector<geometry_msgs::TransformStamped> static_tf_stamped;
     static_tf_stamped.push_back(lidar_tf_stamped);

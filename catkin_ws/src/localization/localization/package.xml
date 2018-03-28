@@ -32,9 +32,9 @@
   <!-- Dependencies can be catkin packages or system dependencies -->
   <buildtool_depend>catkin</buildtool_depend>
   
-  <exec_depend>hector_mapping</exec_depend>
+  <exec_depend>optic_flow</exec_depend>
   <exec_depend>laser_scan_matcher</exec_depend>
-  <exec_depend>robot_pose_ekf</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -144,7 +144,7 @@ void FusedOdomPublisher::vescStateCallback(const vesc_msgs::VescStateStamped::Co
     // calculate accel dependent tix gain
     double slip_ratio;
     if (predict_slip_) {
-        double accel = last_imu_->linear_acceleration.x * -1.0;  // our imu x axis is -ve of robot x axis
+        double accel = last_imu_->linear_acceleration.x;
         accel *= (wheel_speed>0 ? 1 : -1);                       // account for when car moving backwards
         if (accel > 0)                                           // accelerating
             slip_ratio = slip_gain_accel_ * fmax(0,accel-slip_offset_accel_) + slip_gain_speed_ * fmax(0,wheel_speed-slip_offset_speed_);
@@ -163,8 +163,8 @@ void FusedOdomPublisher::vescStateCallback(const vesc_msgs::VescStateStamped::Co
     y_ += ds * sin(yaw_);
 
     // calculate covariance
-    odom_.pose.covariance[0] = 0.1 + 0.001 * fabs(wheel_speed);
-    odom_.twist.covariance[0] = 0.1 + 0.001 * fabs(wheel_speed);
+    odom_.pose.covariance[0] = 0.1 + 5.0 * fabs(wheel_speed);
+    odom_.twist.covariance[0] = 0.1 + 5.0 * fabs(wheel_speed);
     odom_.pose.covariance[6*1+1] = 0.5 + 0.5 * fmax(0,fabs(last_imu_->linear_acceleration.y)-0.2);
     odom_.twist.covariance[6*1+1] = 0.5 + 0.5 * fmax(0,fabs(last_imu_->linear_acceleration.y)-0.2);
     odom_.pose.covariance[6*5+5] = 0.1 * 0.05 * fmax(0,fabs(last_imu_->angular_velocity.z)-0.1);

@@ -1,17 +1,26 @@
 <launch>
     
+    <arg name="display_windows" default="false" />
     <arg name="fuse_odom" default="true" />
     <arg name="use_scan_matcher" default="true" />
-    <arg name="use_amcl" default="false" />
-    <arg name="map" if="$(arg use_amcl)" />
+    <arg name="use_amcl" default="true" />
+    <arg name="map" default="basement_mrsd" if="$(arg use_amcl)" />
     
     <rosparam command="load" file="$(find localization)/localization.yaml" />
     
+    # Optic Flow
+    <node pkg="optic_flow" type="optic_flow_lucas_kanade.py" name="optic_flow" output="screen" >
+        <param name="display_flow" value="false" />
+        <remap from="/camera/image_mono" to="/camera/image_raw" />
+    </node>
+    <node pkg="optic_flow" type="twist_pub" name="optic_flow_to_twist" />
+
     # Laser Scan Matcher
     <node
         name="scan_matcher" pkg="laser_scan_matcher" type="laser_scan_matcher_node" output="screen" respawn="true" if="$(arg use_scan_matcher)">
         <remap from="odom" to="odom_fused" if="$(arg fuse_odom)" />
         <remap from="imu/data" to="imu" />
+        <remap from="vel" to="optic_flow_twist" />
         <remap from="pose_with_covariance_stamped" to="scan_matcher/pose" />
     </node>
     

@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     ros::Publisher brake_pub = nh.advertise<std_msgs::Float64>("/commands/motor/brake",1);
 
     jetsonTX2GPIONumber estopPin = ESTOP_PIN;
-    gpioExport(estopPin);
+    while (gpioExport(estopPin)<0);
     gpioSetDirection(estopPin, inputPin);
 
     ros::Rate r(10);
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
-        gpioGetValue(estopPin, &pin_val);
+        while (gpioGetValue(estopPin, &pin_val)<0) gpioExport(estopPin);
         if (pin_val==high && prev_pin_val==low) {
             ROS_INFO("ESTOP button pressed.");
             

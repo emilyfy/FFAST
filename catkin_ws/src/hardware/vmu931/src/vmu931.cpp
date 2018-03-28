@@ -144,13 +144,10 @@ void Vmu931::setSensorStatus() {
 }
 
 void Vmu931::updateStatus() {
-
-    // IMU often fails to send status
-    // Stop trying to ask for status after 5 tries and determine status manually
-    int retry_count = 0;
+    ros::Time start_time = ros::Time::now();
 
     // Send status requests until you get a response.
-    while(retry_count <=5 && ros::ok()) {
+    while(ros::ok()) {
         if( sendCommand(cmd_req_status) == -1 ) {
             continue;
         }
@@ -167,42 +164,15 @@ void Vmu931::updateStatus() {
             ros::Duration(0.01).sleep();
         }
         
+        // If it takes too long to get status message, IMU is not working
+        if ( (ros::Time::now() - start_time).toSec() > 5 ) {
+            ROS_ERROR("Cannot obtain sensor status. Please try again in a few seconds or unplug and plug the VMU931 back in.");
+            ros::shutdown();
+        }
+
         ROS_WARN("VMU931: Failed to obtain status message. Retrying...");
-        retry_count++;
         ros::Duration(1).sleep();
     }
-
-    ROS_WARN("VMU931: Failed to obtain status in 5 tries. Deciding status manually.");
-    bool active[6];
-    for(int i=0; i<20 && ros::ok(); i++) {
-        if( loadMessage() == -1 ) {i--; continue;}
-        switch(vmutils_retrieveDataType()) {
-            case dt_accel: active[VMU_ORDER_ACCEL] = true; break;
-            case dt_euler: active[VMU_ORDER_EULER] = true; break;
-            case dt_gyro: active[VMU_ORDER_GYRO] = true; break;
-            case dt_heading: active[VMU_ORDER_HEADING] = true; break;
-            case dt_mag: active[VMU_ORDER_MAG] = true; break;
-            case dt_quat: active[VMU_ORDER_QUAT] = true; break;
-            default: i--; break;
-        }
-    }
-    ROS_WARN("status: %c %c %c %c %c %c", active[0]?'a':' ', active[1]?'e':' ', active[2]?'g':' ', active[3]?'h':' ', active[4]?'m':' ', active[5]?'q':' ');
-    unsigned char status = 0xFF;
-    if (active[VMU_ORDER_ACCEL  ]) status = status & (VMU_STATUS_MASK_STREAM_ACCEL ^ 0xFF);
-    if (active[VMU_ORDER_EULER  ]) status = status & (VMU_STATUS_MASK_STREAM_GYRO ^ 0xFF);
-    if (active[VMU_ORDER_GYRO   ]) status = status & (VMU_STATUS_MASK_STREAM_QUAT ^ 0xFF);
-    if (active[VMU_ORDER_HEADING]) status = status & (VMU_STATUS_MASK_STREAM_MAG ^ 0xFF);
-    if (active[VMU_ORDER_MAG    ]) status = status & (VMU_STATUS_MASK_STREAM_EULER ^ 0xFF);
-    if (active[VMU_ORDER_QUAT   ]) status = status & (VMU_STATUS_MASK_STREAM_HEADING ^ 0xFF);
-
-    unsigned char msg[VMU_DATA_STATUS_SIZE+4];
-    MessType mt = mt_data;
-    msg[VMU_START_BYTE_OFFS] = VMU_DATA_START;
-    msg[VMU_SIZE_OFFS] = VMU_DATA_STATUS_SIZE+4;
-    msg[VMU_TYPE_OFFS] = dt_status;
-    msg[VMU_TYPE_OFFS+VMU_DATA_STATUS_SIZE] = status;
-    msg[VMU_DATA_STATUS_SIZE+3] = VMU_DATA_END;
-    vmutils_loadMessage(msg, VMU_DATA_STATUS_SIZE+4, &mt);
 }
 
 // Return -1 on error. Otherwise, return the number of bytes received.

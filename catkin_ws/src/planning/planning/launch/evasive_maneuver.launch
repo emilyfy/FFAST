@@ -1,0 +1,19 @@
+<launch>
+
+    <arg name="obs_detect" default="true" />
+
+    <group if="$(arg obs_detect)">
+        <node pkg="obstacle_detector" type="obstacle_extractor_node" name="obstacle_extractor">
+            <param name="use_scan" value="true" />
+            <param name="use_pcl" value="false" />        
+        </node>
+
+        <node pkg="obstacle_detector" type="obstacle_tracker_node" name="obstacle_tracker" />
+    </group>
+
+    <node pkg="evasive_maneuver" type="avoid_obs_ilqr_node" name="avoid_obs_ilqr" />
+    <node pkg="evasive_maneuver" type="avoid_obs_node" name="avoid_obs" output="screen" respawn="true" />
+
+    <node pkg="user_interface" type="stop_near_obs" name="stop_near_obs" />
+
+</launch>

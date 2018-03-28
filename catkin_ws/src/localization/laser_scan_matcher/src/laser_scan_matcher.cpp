@@ -365,10 +365,11 @@ void LaserScanMatcher::velCallback(const geometry_msgs::Twist::ConstPtr& twist_m
   received_vel_ = true;
 }
 
-void LaserScanMatcher::velStmpCallback(const geometry_msgs::TwistStamped::ConstPtr& twist_msg)
+void LaserScanMatcher::velStmpCallback(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& twist_msg)
 {
   boost::mutex::scoped_lock(mutex_);
-  latest_vel_msg_ = twist_msg->twist;
+  latest_vel_msg_ = twist_msg->twist.twist;
+  latest_vel_msg_.angular.z = latest_imu_msg_.angular_velocity.z;
 
   received_vel_ = true;
 }
@@ -594,6 +595,10 @@ void LaserScanMatcher::processScan(LDP& curr_ldp_scan, const ros::Time& time)
           (0)  (0)  (0)  (0)  (static_cast<double>(orientation_covariance_[1])) (0)
           (0)  (0)  (0)  (0)  (0)  (static_cast<double>(orientation_covariance_[2]));
       }
+      
+      pose_with_covariance_stamped_msg->pose.covariance[0] *= 1e3;
+      pose_with_covariance_stamped_msg->pose.covariance[7] *= 1e3;
+      pose_with_covariance_stamped_msg->pose.covariance[35] *= 1e6 * (latest_imu_msg_.angular_velocity.z+1);
 
       pose_with_covariance_stamped_publisher_.publish(pose_with_covariance_stamped_msg);
     }
