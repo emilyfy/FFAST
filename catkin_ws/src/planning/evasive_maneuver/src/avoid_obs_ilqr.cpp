@@ -1,6 +1,6 @@
 #include "avoid_obs_ilqr.h"
 
-#include <evasive_maneuver/IlqrOutput.h>
+#include <ilqr_msgs/IlqrOutput.h>
 extern "C" {
   #include "iLQG.h"
   #include "iLQG_problem.h"
@@ -32,22 +32,19 @@ iLQR::iLQR(ros::NodeHandle nh, ros::NodeHandle pnh) :
     }
 
     // setup ROS subscribers and publishers
-    obs_sub_ = nh.subscribe("tracked_obstacles", 10, &iLQR::obsCb, this);
+    obs_sub_ = nh.subscribe("masked_obstacles", 1, &iLQR::obsCb, this);
     ilqr_sub_ = nh.subscribe("ilqr_input", 1, &iLQR::ilqrCb, this);
-    ilqr_pub_ = nh.advertise<evasive_maneuver::IlqrOutput>("ilqr_output", 1);
+    ilqr_pub_ = nh.advertise<ilqr_msgs::IlqrOutput>("ilqr_output", 1);
 
     // set static / initial values
-    for (int i=2; i<6; i++) xDes_[i] = 0.0;
     x0_[8] = 3.0;
     x0_[9] = 0.0;
-    Obs_[0] = 0.0;
-    Obs_[1] = 0.0;
+    obs_vel_[0] = 0.0;
+    obs_vel_[1] = 0.0;
 }
 
-void iLQR::ilqrCb(const evasive_maneuver::IlqrInput::ConstPtr& msg)
+void iLQR::ilqrCb(const ilqr_msgs::IlqrInput::ConstPtr& msg)
 {
-    state_ = msg->state.pose;
-    
     // get input values to iLQR planner
     x0_[0] = msg->state.pose.x;
     x0_[1] = msg->state.pose.y;
@@ -68,17 +65,14 @@ void iLQR::ilqrCb(const evasive_maneuver::IlqrInput::ConstPtr& msg)
         u0_[2*i+1] = steer_dist(steer_gen);
     }
 
-    xDes_[0] = msg->goal.x;
-    xDes_[1] = msg->goal.y;
-
     // assign Op_ values
     Op_->x0 = x0_;
-    Op_->p[P_XDES_IDX] = xDes_;
-    Op_->p[P_OBS_IDX] = Obs_;
+    Op_->p[P_OBS_VEL_IDX] = obs_vel_;
+    Op_->p[P_GOAL_IDX][0]-x0_[0] > CHANGE_CF_DIST ? Op_->p[P_CF_IDX] = cf_bef_goal_ : Op_->p[P_CF_IDX] = cf_aft_goal_;
 
     // outputs
     double x_new[N_*N_X], u_new[HORIZON*N_U];
-    evasive_maneuver::IlqrOutput output;
+    ilqr_msgs::IlqrOutput output;
     output.commands.resize(HORIZON);
     output.states.resize(N_);
 
@@ -138,25 +132,12 @@ void iLQR::ilqrCb(const evasive_maneuver::IlqrInput::ConstPtr& msg)
 
 void iLQR::obsCb(const obstacle_detector::Obstacles::ConstPtr& msg)
 {
-    int n = msg->circles.size();
-    
-    // if no obstacle
-    if (n==0)
-        return;
-    
-    // find the nearest obstacle
-    int nearest = 0;
-    double nearest_dist = 100;
-    for (int i=0; i<n; i++) {
-        double dist = sqrt( pow(msg->circles[i].center.x - state_.x,2.0) + pow(msg->circles[i].center.y - state_.y,2.0) );
-        if (dist < nearest_dist)
-            nearest = i;
-    }
-    
-    x0_[8] = msg->circles[nearest].center.x;
-    x0_[9] = msg->circles[nearest].center.y;
-    Obs_[0] = msg->circles[nearest].velocity.x;
-    Obs_[1] = msg->circles[nearest].velocity.y;
+    x0_[8] = msg->circles[0].center.x;
+    x0_[9] = msg->circles[0].center.y;
+    obs_vel_[0] = msg->circles[0].velocity.x;
+    obs_vel_[1] = msg->circles[0].velocity.y;
+
+
 }
 
 int main(int argc, char** argv)

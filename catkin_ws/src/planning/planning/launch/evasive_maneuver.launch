@@ -1,6 +1,7 @@
 <launch>
 
-    <arg name="obs_detect" default="true" />
+    <arg name="obs_detect" default="false" />
+    <arg name="obs_speed" />
 
     <group if="$(arg obs_detect)">
         <node pkg="obstacle_detector" type="obstacle_extractor_node" name="obstacle_extractor">
@@ -9,11 +10,18 @@
         </node>
 
         <node pkg="obstacle_detector" type="obstacle_tracker_node" name="obstacle_tracker" />
+        <node pkg="evasive_maneuver" type="mask_obstacles" name="mask_obstacles" />
     </group>
 
-    <node pkg="evasive_maneuver" type="avoid_obs_ilqr_node" name="avoid_obs_ilqr" />
-    <node pkg="evasive_maneuver" type="avoid_obs_node" name="avoid_obs" output="screen" respawn="true" />
+    <node pkg="evasive_maneuver" type="set_dyn_obs" name="set_dyn_obs" unless="$(arg obs_detect)">
+        <param name="obs_speed" value="$(arg obs_speed)" />
+    </node>
 
-    <node pkg="user_interface" type="stop_near_obs" name="stop_near_obs" />
+    <node pkg="evasive_maneuver" type="avoid_obs_ilqr_node" name="avoid_obs_ilqr" />
+    <node pkg="evasive_maneuver" type="avoid_obs_node" name="avoid_obs" output="screen" required="true" />
+
+    <node pkg="evasive_maneuver" type="estop_stamper" name="estop_stamper" />
+    
+    <!--node pkg="user_interface" type="stop_near_obs" name="stop_near_obs" /-->
 
 </launch>

@@ -1,4 +1,4 @@
-/* File generated form template iLQG_problem.tem on 2018-03-24 21:06:18+08:00. Do not edit! */
+/* File generated form template iLQG_problem.tem on 2018-04-26 14:55:36-04:00. Do not edit! */
 
 #ifndef ILQG_PROBLEM_H
 #define ILQG_PROBLEM_H
@@ -11,10 +11,8 @@
 
 // #define isNANorINF(v) (mxIsNaN(v) || mxIsInf(v))
 // #define INF mxGetInf()
-#define isNANorINF(v) (isnan(v) || isinf(v))
-#define INF INFINITY
-// #define isNANorINF(v) (isnan(v) || !finite(v))
-// #define INF HUGE_VAL
+#define isNANorINF(v) (isnan(v) || !finite(v))
+#define INF HUGE_VAL
 
 #define N_X 10 
 #define N_U 2 

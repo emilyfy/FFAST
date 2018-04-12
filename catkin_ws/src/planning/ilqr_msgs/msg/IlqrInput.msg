@@ -1,5 +1,4 @@
 Header header
-evasive_maneuver/State state
+ilqr_msgs/State state
 ackermann_msgs/AckermannDrive previouscommand
 ackermann_msgs/AckermannDrive[] remainingcommands
-geometry_msgs/Pose2D goal

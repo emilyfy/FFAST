@@ -2,11 +2,14 @@
 #define _AVOID_OBS_ILQR_H_
 
 #define HORIZON   10
-#define MAX_ITER 5000
+#define MAX_ITER  50
 
 //// REMEMBER TO CHANGE THIS IF THE iLQG_func.c FILE IS CHANGED!!!!!!! ////
-#define P_XDES_IDX 28
-#define P_OBS_IDX   3
+#define P_OBS_VEL_IDX 23
+#define P_GOAL_IDX    13
+#define P_CF_IDX      8
+
+#define CHANGE_CF_DIST 0.1
 
 #include <math.h>
 #include <boost/random.hpp>
@@ -14,9 +17,8 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Pose2D.h>
 #include <obstacle_detector/Obstacles.h>
-#include <obstacle_detector/CircleObstacle.h>
-#include <evasive_maneuver/IlqrInput.h>
-#include <evasive_maneuver/IlqrOutput.h>
+#include <ilqr_msgs/IlqrInput.h>
+#include <ilqr_msgs/IlqrOutput.h>
 
 extern "C" {
   #include "iLQG.h"
@@ -41,12 +43,12 @@ class iLQR
 
     // variables
     int N_;
-    double x0_[10], u0_[HORIZON*2], xDes_[6], Obs_[2];
     tOptSet* Op_;
-    geometry_msgs::Pose2D state_;
+    double x0_[10], u0_[HORIZON*2], obs_vel_[2];
+    double cf_bef_goal_[6], cf_aft_goal_[6];
 
     // ROS callbacks
-    void ilqrCb(const evasive_maneuver::IlqrInput::ConstPtr& msg);
+    void ilqrCb(const ilqr_msgs::IlqrInput::ConstPtr& msg);
     void obsCb(const obstacle_detector::Obstacles::ConstPtr& msg);
 
     // Function

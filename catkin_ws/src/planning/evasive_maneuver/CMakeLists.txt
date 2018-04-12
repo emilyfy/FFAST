@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   ackermann_msgs
   obstacle_detector
-  message_generation
+  ilqr_msgs
 )
 # find_package(Matlab REQUIRED)
 find_package(Boost REQUIRED)
@@ -53,12 +53,11 @@ find_package(Boost REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  State.msg
-  IlqrInput.msg
-  IlqrOutput.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -75,11 +74,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  geometry_msgs
-  ackermann_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs  # Or other packages containing msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -154,6 +152,9 @@ add_library(${PROJECT_NAME}
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(avoid_obs_node src/avoid_obs.cpp)
 add_executable(avoid_obs_ilqr_node src/avoid_obs_ilqr.cpp src/ilqr_params.cpp)
+add_executable(mask_obstacles src/mask_obstacles.cpp)
+add_executable(set_dyn_obs src/set_dyn_obs.cpp)
+add_executable(estop_stamper src/estop_stamper.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -165,6 +166,9 @@ add_executable(avoid_obs_ilqr_node src/avoid_obs_ilqr.cpp src/ilqr_params.cpp)
 ## same as for the library above
 add_dependencies(avoid_obs_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(avoid_obs_ilqr_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(mask_obstacles ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(set_dyn_obs ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(estop_stamper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(avoid_obs_node
@@ -178,6 +182,9 @@ target_link_libraries(avoid_obs_ilqr_node
   # ${Matlab_LIBRARIES}
   ${Boost_LIBRARIES}
 )
+target_link_libraries(mask_obstacles ${catkin_LIBRARIES} )
+target_link_libraries(set_dyn_obs ${catkin_LIBRARIES} )
+target_link_libraries(estop_stamper ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
