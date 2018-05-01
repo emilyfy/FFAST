@@ -1,6 +1,5 @@
 <launch>
     
-    <arg name="display_windows" default="false" />
     <arg name="fuse_odom" default="true" />
     <arg name="use_scan_matcher" default="true" />
     <arg name="use_amcl" default="true" />
