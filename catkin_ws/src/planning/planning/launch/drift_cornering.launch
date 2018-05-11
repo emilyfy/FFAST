@@ -1,0 +1,10 @@
+<launch>
+
+    <node pkg="drift_cornering" type="drift_cornering_ilqr" name="drift_cornering_ilqr" />
+    <node pkg="drift_cornering" type="drift_cornering_node" name="drift_cornering" output="screen" required="true" />
+
+    <node pkg="evasive_maneuver" type="estop_stamper" name="estop_stamper" />
+    
+    <!--node pkg="user_interface" type="stop_near_obs" name="stop_near_obs" /-->
+
+</launch>

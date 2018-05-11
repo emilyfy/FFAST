@@ -1,0 +1,99 @@
+gradef(abs(xxxx), if xxxx>0 then 1 else -1);
+
+x: [x_, y_, psi, v_x, v_y, psi_dot, pthr, psteer];
+u: [thr, steer];
+
+tire_dyn_f(alpha):=
+block([alpha_sl,Fy],
+    if abs(alpha)>%pi/2.0
+    then alpha: (%pi-abs(alpha))*(alpha/abs(alpha)),
+
+    alpha_sl: atan(3.0*mu*load_f/c_a),
+
+    Fy: 
+    if abs(alpha) <= alpha_sl
+    then -c_a*tan(alpha) + c_a^2.0/(3.0*mu*load_f)*abs(tan(alpha))*tan(alpha) - c_a^3.0/(27*mu*load_f^2.0)*tan(alpha)^3.0
+    else -mu*load_f*(alpha/abs(alpha)),
+
+Fy
+);
+
+tire_dyn_r(v_x,thr,alpha):=
+block([K,gamma,F,Fx,Fy],
+    K:(thr-v_x)/(abs(v_x)+1e-3),
+
+    reverse:1.0,
+    
+    if K<0.0
+    then (reverse:-1.0, K:abs(K)),
+
+    if abs(alpha)>%pi/2.0
+    then alpha: (%pi-abs(alpha))*(alpha/abs(alpha)),
+
+    gamma: sqrt(c_x^2.0*(K/(1+K))^2.0+c_a^2.0*(tan(alpha)/(1+K))^2.0),
+
+    F: 
+    if gamma <= 3.0*mu*load_r
+    then 1.0 - 1.0/(3.0*mu*load_r)*gamma + 1.0/(27.0*mu^2.0*load_r^2.0)*gamma^2.0
+    else mu_s*load_r/gamma,
+
+    Fx: c_x * (K/(1.0+K)) * F * reverse,
+    Fy: -c_a * (tan(alpha)/(1.0+K)) * F,
+
+[Fx,Fy]
+);
+
+dx(x,u) :=
+block([x_, y_, psi, v_x, v_y, psi_dot, thr, steer, 
+K, Fyf, Fxr, Fyr, 
+dpsi_dot, dv_x, dv_y, v, dx, dy],
+    [x_, y_, psi, v_x, v_y, psi_dot]: x,
+    [thr, steer]: u,
+
+    alpha_f: atan2((v_y+L_f*psi_dot),v_x)-steer,
+    alpha_r: atan2((v_y-L_r*psi_dot),v_x),
+
+    Fyf: tire_dyn_f(alpha_f),
+    [Fxr,Fyr]: tire_dyn_r(v_x,thr,alpha_r),
+
+    dpsi_dot: (L_f*Fyf*cos(steer)-L_r*Fyr)/I_z,
+    dv_x: (Fxr-Fyf*sin(steer))/m+psi_dot*v_y,
+    dv_y: (Fyf*cos(steer)+Fyr)/m-psi_dot*v_x,
+
+    v: sqrt(v_x^2.0+v_y^2.0),
+
+    beta: atan2(v_y,v_x),
+
+    dx: v*cos(beta+psi),
+    dy: v*sin(beta+psi),
+
+[dx,dy,psi_dot,dv_x,dv_y,dpsi_dot]
+);
+
+[d1,d2,d3,d4,d5,d6]: dx([x_,y_,psi,v_x,v_y,psi_dot],[thr,steer]);
+f[x_]: x_ + d1*dt;
+f[y_]: y_ + d2*dt;
+f[psi]: psi + d3*dt;
+f[v_x]: v_x + d4*dt;
+f[v_y]: v_y + d5*dt;
+f[psi_dot]: psi_dot + d6*dt;
+f[pthr]: thr;
+f[psteer]: steer;
+
+dthr: (thr-pthr)/dt;
+dsteer: (steer-psteer)/dt;
+
+sabs(x, e):= sqrt(x^2 + e^2) - e;
+
+beta: atan2(v_y,v_x);
+gbeta: atan2(goal[1],goal[0]);
+
+F: cf[0]*sabs(v_x-goal[0], pf[0]) + cf[1]*sabs(beta-gbeta, pf[1]) + cf[2]*sabs(psi_dot-goal[2], pf[2]);
+L: cu[0]*thr^2.0 + cu[1]*steer^2.0 + cdu[0]*dthr^2.0 + cdu[1]*dsteer^2.0
+   + cx[0]*sabs(x_, px[0]) + cx[1]*sabs(y_, px[1])
+   + cx[3]*sabs(v_x-goal[0], px[3]) + cx[4]*sabs(beta-gbeta, px[4]) + cx[5]*sabs(psi_dot-goal[2], px[5]);
+
+h[1]: -thr + limThr[0]; 
+h[2]: thr - limThr[1]; 
+h[3]: -steer + limSteer[0]; 
+h[4]: steer - limSteer[1]; 
