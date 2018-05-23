@@ -14,10 +14,14 @@ scan_matcher:
   kf_dist_angular: 0.00 # rad
 
   max_iterations: 50
-  max_correspondence_dist: 0.5
+  max_correspondence_dist: 1.5
   max_angular_correction_deg: 90.0 # deg
-  max_linear_correction: 0.70 # m
-  outliers_maxPerc: 0.90
+  max_linear_correction: 2.0 # m
+  outliers_maxPerc: 0.95
+
+  # self added parameters to make adjustable
+  min_perc_valid_rays: 0.01      # default 0.10
+  min_perc_correspondence: 0.005 # default 0.05
 
 amcl:
   # Publish scans from best pose at a max of 10 Hz

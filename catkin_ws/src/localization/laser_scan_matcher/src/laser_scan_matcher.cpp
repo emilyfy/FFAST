@@ -333,6 +333,14 @@ void LaserScanMatcher::initParams()
   // correspondence by 1/sigma^2
   if (!nh_private_.getParam ("use_sigma_weights", input_.use_sigma_weights))
     input_.use_sigma_weights = 0;
+
+  // Minimum percentage of laser data rays that are valid
+  if (!nh_private_.getParam ("min_perc_valid_rays", min_perc_valid_rays_))
+    min_perc_valid_rays_ = 0.10;
+
+  // Minimum percentage of correspondences in scan matching
+  if (!nh_private_.getParam ("min_perc_correspondence", min_perc_correspondence_))
+    min_perc_correspondence_ = 0.05;
 }
 
 void LaserScanMatcher::imuCallback(const sensor_msgs::Imu::ConstPtr& imu_msg)
@@ -493,7 +501,7 @@ void LaserScanMatcher::processScan(LDP& curr_ldp_scan, const ros::Time& time)
 
   // *** scan match - using point to line icp from CSM
 
-  sm_icp(&input_, &output_);
+  _sm_icp(&input_, &output_);
   tf::Transform corr_ch;
 
   if (output_.valid)
@@ -824,6 +832,10 @@ void LaserScanMatcher::getPrediction(double& pr_ch_x, double& pr_ch_y,
   // **** use wheel odometry
   if (use_odom_ && received_odom_)
   {
+    if (use_vel_) pr_ch_x = (pr_ch_x + 
+                            latest_odom_msg_.pose.pose.position.x -
+                            last_used_odom_msg_.pose.pose.position.x) / 2.0;
+    else
     pr_ch_x = latest_odom_msg_.pose.pose.position.x -
               last_used_odom_msg_.pose.pose.position.x;
 

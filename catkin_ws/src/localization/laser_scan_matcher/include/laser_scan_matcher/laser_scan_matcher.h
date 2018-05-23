@@ -117,6 +117,9 @@ class LaserScanMatcher
     double kf_dist_linear_sq_;
     double kf_dist_angular_;
 
+    double min_perc_valid_rays_;
+    double min_perc_correspondence_;
+
     // **** What predictions are available to speed up the ICP?
     // 1) imu - [theta] from imu yaw angle - /imu topic
     // 2) odom - [x, y, theta] from wheel odometry - /odom topic
@@ -183,6 +186,11 @@ class LaserScanMatcher
                        double& pr_ch_a, double dt);
 
     void createTfFromXYTheta(double x, double y, double theta, tf::Transform& t);
+
+    int _icp_loop(struct sm_params*params, const double*q0, double*x_new, double*total_error, int*nvalid, int*iterations);
+    int _ld_valid_fields(LDP ld);
+    void _sm_icp(struct sm_params*params, struct sm_result*res);
+    void _sm_icp_xy(struct sm_params*params, struct sm_result*res);
 };
 
 } // namespace scan_tools

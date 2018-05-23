@@ -32,7 +32,7 @@ catkin_package(
 )
 
 #Create library
-add_library(laser_scan_matcher src/laser_scan_matcher.cpp)
+add_library(laser_scan_matcher src/laser_scan_matcher.cpp src/icp.cpp src/gpc.cpp)
 
 #Note we don't link against pcl as we're using header-only parts of the library
 target_link_libraries( laser_scan_matcher ${catkin_LIBRARIES} ${csm_LIBRARIES})
