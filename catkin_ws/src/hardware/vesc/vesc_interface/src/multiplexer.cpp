@@ -94,10 +94,11 @@ namespace vesc_interface
         }
     }
 
-    void Multiplexer::navCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg)
+    void Multiplexer::navCallback(const geometry_msgs::Twist::ConstPtr& msg)
     {
-        last_cb_time_[NAV_PRIORITY] = msg->header.stamp;
         ros::Time curr_time = ros::Time::now();
+        last_cb_time_[NAV_PRIORITY] = curr_time;
+
         bool publish = true;
         for (int i=3; i>NAV_PRIORITY; --i) {
             if ( (curr_time - last_cb_time_[i]) < timeout_) publish = false;
@@ -109,9 +110,9 @@ namespace vesc_interface
                 mode_ = NAV_PRIORITY;
                 ROS_INFO("Command multiplexer set to navigation.");
             }
-            ackermann_msg_.header.stamp = msg->header.stamp;
-            ackermann_msg_.drive.speed = msg->drive.speed;
-            ackermann_msg_.drive.steering_angle = msg->drive.steering_angle;
+            ackermann_msg_.header.stamp = curr_time;
+            ackermann_msg_.drive.speed = msg->linear.x;
+            ackermann_msg_.drive.steering_angle = angVelToSteer_(msg->linear.x, msg->angular.z);
             ackermann_pub_.publish(ackermann_msg_);
         }
     }

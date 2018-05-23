@@ -46,7 +46,7 @@ namespace vesc_interface
         void estopCallback(const std_msgs::Bool::ConstPtr& msg);
         void joyCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
         void kbCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
-        void navCallback(const ackermann_msgs::AckermannDriveStamped::ConstPtr& msg);
+        void navCallback(const geometry_msgs::Twist::ConstPtr& msg);
 
         // timer callback to publish
         void pubTimerCallback(const ros::TimerEvent& event);

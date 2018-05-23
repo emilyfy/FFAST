@@ -1,6 +1,6 @@
 obstacle_range: 2.5
 raytrace_range: 3.0
-footprint: [[0.129, 0.082], [-0.128, 0.082], [-0.128, -0.082], [0.129, -0.082]]
+footprint: [[0.115, 0.082], [-0.142, 0.082], [-0.142, -0.082], [0.115, -0.082]]
 inflation_radius: 0.2
 transform_tolerance: 1.0
 
