@@ -82,6 +82,8 @@ public:
     double force_reinit_new_goal_dist; //!< Reinitialize the trajectory if a previous goal is updated with a seperation of more than the specified value in meters (skip hot-starting)
     int feasibility_check_no_poses; //!< Specify up to which pose on the predicted plan the feasibility should be checked each sampling interval.
     bool publish_feedback; //!< Publish planner feedback containing the full trajectory and a list of active obstacles (should be enabled only for evaluation or debugging purposes)
+    bool shrink_horizon_backup; //!< Allows the planner to shrink the horizon temporary (50%) in case of automatically detected issues.
+    double shrink_horizon_min_duration; //!< Specify minimum duration for the reduced horizon in case an infeasible trajectory is detected.
   } trajectory; //!< Trajectory related parameters
     
   //! Robot related parameters
@@ -97,7 +99,6 @@ public:
     double min_turning_radius; //!< Minimum turning radius of a carlike robot (diff-drive robot: zero); 
     double wheelbase; //!< The distance between the drive shaft and steering axle (only required for a carlike robot with 'cmd_angle_instead_rotvel' enabled); The value might be negative for back-wheeled robots!
     bool cmd_angle_instead_rotvel; //!< Substitute the rotational velocity in the commanded velocity message by the corresponding steering angle (check 'axles_distance')
-    bool is_footprint_dynamic; //<! If true, updated the footprint before checking trajectory feasibility
   } robot; //!< Robot related parameters
   
   //! Goal tolerance related parameters
@@ -113,8 +114,6 @@ public:
   {
     double min_obstacle_dist; //!< Minimum desired separation from obstacles
     double inflation_dist; //!< buffer zone around obstacles with non-zero penalty costs (should be larger than min_obstacle_dist in order to take effect)
-    double dynamic_obstacle_inflation_dist; //!< Buffer zone around predicted locations of dynamic obstacles with non-zero penalty costs (should be larger than min_obstacle_dist in order to take effect)
-    bool include_dynamic_obstacles; //!< Specify whether the movement of dynamic obstacles should be predicted by a constant velocity model (this also effects homotopy class planning); If false, all obstacles are considered to be static.
     bool include_costmap_obstacles; //!< Specify whether the obstacles in the costmap should be taken into account directly
     double costmap_obstacles_behind_robot_dist; //!< Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters)
     int obstacle_poses_affected; //!< The obstacle position is attached to the closest pose on the trajectory to reduce computational effort, but take a number of neighbors into account as well
@@ -151,9 +150,7 @@ public:
     double weight_obstacle; //!< Optimization weight for satisfying a minimum separation from obstacles
     double weight_inflation; //!< Optimization weight for the inflation penalty (should be small)
     double weight_dynamic_obstacle; //!< Optimization weight for satisfying a minimum separation from dynamic obstacles    
-    double weight_dynamic_obstacle_inflation; //!< Optimization weight for the inflation penalty of dynamic obstacles (should be small)
     double weight_viapoint; //!< Optimization weight for minimizing the distance to via-points
-    double weight_prefer_rotdir; //!< Optimization weight for preferring a specific turning direction (-> currently only activated if an oscillation is detected, see 'oscillation_recovery'
     
     double weight_adapt_factor; //!< Some special weights (currently 'weight_obstacle') are repeatedly scaled by this factor in each outer TEB iteration (weight_new = weight_old*factor); Increasing weights iteratively instead of setting a huge value a-priori leads to better numerical conditions of the underlying optimization problem.
   } optim; //!< Optimization related parameters
@@ -183,20 +180,8 @@ public:
     bool viapoints_all_candidates; //!< If true, all trajectories of different topologies are attached to the current set of via-points, otherwise only the trajectory sharing the same one as the initial/global plan.
     
     bool visualize_hc_graph; //!< Visualize the graph that is created for exploring new homotopy classes.
-    double visualize_with_time_as_z_axis_scale; //!< If this value is bigger than 0, the trajectory and obstacles are visualized in 3d using the time as the z-axis scaled by this value. Most useful for dynamic obstacles.
   } hcp;
   
-  //! Recovery/backup related parameters
-  struct Recovery
-  {
-    bool shrink_horizon_backup; //!< Allows the planner to shrink the horizon temporary (50%) in case of automatically detected issues.
-    double shrink_horizon_min_duration; //!< Specify minimum duration for the reduced horizon in case an infeasible trajectory is detected.
-    bool oscillation_recovery; //!< Try to detect and resolve oscillations between multiple solutions in the same equivalence class (robot frequently switches between left/right/forward/backwards)
-    double oscillation_v_eps; //!< Threshold for the average normalized linear velocity: if oscillation_v_eps and oscillation_omega_eps are not exceeded both, a possible oscillation is detected
-    double oscillation_omega_eps; //!< Threshold for the average normalized angular velocity: if oscillation_v_eps and oscillation_omega_eps are not exceeded both, a possible oscillation is detected
-    double oscillation_recovery_min_duration; //!< Minumum duration [sec] for which the recovery mode is activated after an oscillation is detected.
-    double oscillation_filter_duration; //!< Filter length/duration [sec] for the detection of oscillations
-  } recovery; //!< Parameters related to recovery and backup strategies
 
  /**
   * @brief Construct the TebConfig using default values.
@@ -233,6 +218,8 @@ public:
     trajectory.force_reinit_new_goal_dist = 1;
     trajectory.feasibility_check_no_poses = 5;
     trajectory.publish_feedback = false;
+    trajectory.shrink_horizon_backup = true;
+    trajectory.shrink_horizon_min_duration = 10;
     
     // Robot
          
@@ -246,7 +233,6 @@ public:
     robot.min_turning_radius = 0;
     robot.wheelbase = 1.0;
     robot.cmd_angle_instead_rotvel = false;
-    robot.is_footprint_dynamic = false;
     
     // GoalTolerance
     
@@ -257,9 +243,7 @@ public:
     // Obstacles
     
     obstacles.min_obstacle_dist = 0.5;
-    obstacles.inflation_dist = 0.6;
-    obstacles.dynamic_obstacle_inflation_dist = 0.6;
-    obstacles.include_dynamic_obstacles = true;
+    obstacles.inflation_dist = 0.0;
     obstacles.include_costmap_obstacles = true;
     obstacles.costmap_obstacles_behind_robot_dist = 1.5;
     obstacles.obstacle_poses_affected = 25;
@@ -287,12 +271,10 @@ public:
     optim.weight_kinematics_forward_drive = 1;
     optim.weight_kinematics_turning_radius = 1;
     optim.weight_optimaltime = 1;
-    optim.weight_obstacle = 50;
+    optim.weight_obstacle = 10;
     optim.weight_inflation = 0.1;
-    optim.weight_dynamic_obstacle = 50;
-    optim.weight_dynamic_obstacle_inflation = 0.1;
+    optim.weight_dynamic_obstacle = 10;
     optim.weight_viapoint = 1;
-    optim.weight_prefer_rotdir = 50;
     
     optim.weight_adapt_factor = 2.0;
     
@@ -319,17 +301,6 @@ public:
     hcp.viapoints_all_candidates = true;
     
     hcp.visualize_hc_graph = false;
-    hcp.visualize_with_time_as_z_axis_scale = 0.0;
-    
-    // Recovery
-    
-    recovery.shrink_horizon_backup = true;
-    recovery.shrink_horizon_min_duration = 10;
-    recovery.oscillation_recovery = true;
-    recovery.oscillation_v_eps = 0.1;
-    recovery.oscillation_omega_eps = 0.1;
-    recovery.oscillation_recovery_min_duration = 10;
-    recovery.oscillation_filter_duration = 10;
 
 
   }

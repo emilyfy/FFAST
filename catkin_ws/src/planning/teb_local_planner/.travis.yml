@@ -55,7 +55,7 @@ env:
     - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
     - ROS_PARALLEL_JOBS='-j8 -l6'
   matrix:
-    - ROS_DISTRO=jade
+    - ROS_DISTRO=indigo
 
 
 ################################################################################

@@ -7,8 +7,9 @@ separation from obstacles and compliance with kinodynamic constraints at runtime
 
 Refer to http://wiki.ros.org/teb_local_planner for more information and tutorials.
 
-Build status of the *kinetic-devel* branch:
-- ROS Buildfarm (Kinetic): [![Kinetic Status](http://build.ros.org/buildStatus/icon?job=Kdev__teb_local_planner__ubuntu_xenial_amd64)](http://build.ros.org/job/Kdev__teb_local_planner__ubuntu_xenial_amd64/)
+Build status of the *indigo-devel* branch:
+- ROS Buildfarm: [![Inidgo Build Status](http://build.ros.org/buildStatus/icon?job=Idev__teb_local_planner__ubuntu_trusty_amd64)](http://build.ros.org/job/Idev__teb_local_planner__ubuntu_trusty_amd64/)
+- Travis: [![Build Status](https://travis-ci.org/rst-tu-dortmund/teb_local_planner.svg?branch=indigo-devel)](https://travis-ci.org/rst-tu-dortmund/teb_local_planner)
 
 
 ### Papers Describing the Approach

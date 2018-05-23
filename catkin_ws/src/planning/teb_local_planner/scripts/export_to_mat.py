@@ -53,26 +53,23 @@ def feedback_callback(data):
   
   # copy obstacles
   obstacles = []
-  for obst_id, obst in enumerate(data.obstacle_msg.obstacles):
+  for obst in data.obstacles:
     #polygon = []
     #for point in obst.polygon.points:
     #  polygon.append({'x': point.x, 'y': point.y, 'z': point.z})
-    obst_arr = np.zeros([4, len(obst.polygon.points)], dtype='double'); # x, y
+    obst_arr = np.zeros([2, len(obst.polygon.points)], dtype='double'); # x, y
     for index, point in enumerate(obst.polygon.points):
       obst_arr[0, index] = point.x
       obst_arr[1, index] = point.y
-      obst_arr[2, index] = data.obstacle_msg.velocities[obst_id].twist.linear.x
-      obst_arr[3, index] = data.obstacle_msg.velocities[obst_id].twist.linear.y
-
     #obstacles.append(polygon)
-    obstacles.append({'data': obst_arr, 'legend': ['x','y', 'v_x', 'v_y']})
+    obstacles.append({'data': obst_arr, 'legend': ['x','y']})
   
   
   # create main struct:
   mat = {'selected_trajectory_idx': data.selected_trajectory_idx, 'trajectories': trajectories, 'obstacles': obstacles}
 
   timestr = time.strftime("%Y%m%d_%H%M%S")
-  filename = '/home/albers/MasterThesis/Matlab/Homotopie/test_optim_node/' + 'teb_data_' + timestr + '.mat'
+  filename = "teb_data_" + timestr + '.mat'
   
   rospy.loginfo("Saving mat-file '%s'.", filename)
   sio.savemat(filename, mat)

@@ -62,6 +62,8 @@ void TebConfig::loadRosParamFromNodeHandle(const ros::NodeHandle& nh)
   nh.param("force_reinit_new_goal_dist", trajectory.force_reinit_new_goal_dist, trajectory.force_reinit_new_goal_dist);
   nh.param("feasibility_check_no_poses", trajectory.feasibility_check_no_poses, trajectory.feasibility_check_no_poses);
   nh.param("publish_feedback", trajectory.publish_feedback, trajectory.publish_feedback);
+  nh.param("shrink_horizon_backup", trajectory.shrink_horizon_backup, trajectory.shrink_horizon_backup);
+  nh.param("shrink_horizon_min_duration", trajectory.shrink_horizon_min_duration, trajectory.shrink_horizon_min_duration);
   
   // Robot
   nh.param("max_vel_x", robot.max_vel_x, robot.max_vel_x);
@@ -74,7 +76,6 @@ void TebConfig::loadRosParamFromNodeHandle(const ros::NodeHandle& nh)
   nh.param("min_turning_radius", robot.min_turning_radius, robot.min_turning_radius);
   nh.param("wheelbase", robot.wheelbase, robot.wheelbase);
   nh.param("cmd_angle_instead_rotvel", robot.cmd_angle_instead_rotvel, robot.cmd_angle_instead_rotvel);
-  nh.param("is_footprint_dynamic", robot.is_footprint_dynamic, robot.is_footprint_dynamic);
   
   // GoalTolerance
   nh.param("xy_goal_tolerance", goal_tolerance.xy_goal_tolerance, goal_tolerance.xy_goal_tolerance);
@@ -84,8 +85,6 @@ void TebConfig::loadRosParamFromNodeHandle(const ros::NodeHandle& nh)
   // Obstacles
   nh.param("min_obstacle_dist", obstacles.min_obstacle_dist, obstacles.min_obstacle_dist);
   nh.param("inflation_dist", obstacles.inflation_dist, obstacles.inflation_dist);
-  nh.param("dynamic_obstacle_inflation_dist", obstacles.dynamic_obstacle_inflation_dist, obstacles.dynamic_obstacle_inflation_dist);
-  nh.param("include_dynamic_obstacles", obstacles.include_dynamic_obstacles, obstacles.include_dynamic_obstacles);
   nh.param("include_costmap_obstacles", obstacles.include_costmap_obstacles, obstacles.include_costmap_obstacles);
   nh.param("costmap_obstacles_behind_robot_dist", obstacles.costmap_obstacles_behind_robot_dist, obstacles.costmap_obstacles_behind_robot_dist);
   nh.param("obstacle_poses_affected", obstacles.obstacle_poses_affected, obstacles.obstacle_poses_affected);
@@ -114,9 +113,7 @@ void TebConfig::loadRosParamFromNodeHandle(const ros::NodeHandle& nh)
   nh.param("weight_obstacle", optim.weight_obstacle, optim.weight_obstacle);
   nh.param("weight_inflation", optim.weight_inflation, optim.weight_inflation);
   nh.param("weight_dynamic_obstacle", optim.weight_dynamic_obstacle, optim.weight_dynamic_obstacle);    
-  nh.param("weight_dynamic_obstacle_inflation", optim.weight_dynamic_obstacle_inflation, optim.weight_dynamic_obstacle_inflation);
   nh.param("weight_viapoint", optim.weight_viapoint, optim.weight_viapoint);
-  nh.param("weight_prefer_rotdir", optim.weight_prefer_rotdir, optim.weight_prefer_rotdir);
   nh.param("weight_adapt_factor", optim.weight_adapt_factor, optim.weight_adapt_factor);
   
   // Homotopy Class Planner
@@ -138,17 +135,6 @@ void TebConfig::loadRosParamFromNodeHandle(const ros::NodeHandle& nh)
   nh.param("obstacle_heading_threshold", hcp.obstacle_heading_threshold, hcp.obstacle_heading_threshold); 
   nh.param("viapoints_all_candidates", hcp.viapoints_all_candidates, hcp.viapoints_all_candidates);
   nh.param("visualize_hc_graph", hcp.visualize_hc_graph, hcp.visualize_hc_graph); 
-  nh.param("visualize_with_time_as_z_axis_scale", hcp.visualize_with_time_as_z_axis_scale, hcp.visualize_with_time_as_z_axis_scale);
-  
-  // Recovery
-  
-  nh.param("shrink_horizon_backup", recovery.shrink_horizon_backup, recovery.shrink_horizon_backup);
-  nh.param("shrink_horizon_min_duration", recovery.shrink_horizon_min_duration, recovery.shrink_horizon_min_duration);
-  nh.param("oscillation_recovery", recovery.oscillation_recovery, recovery.oscillation_recovery);
-  nh.param("oscillation_v_eps", recovery.oscillation_v_eps, recovery.oscillation_v_eps);
-  nh.param("oscillation_omega_eps", recovery.oscillation_omega_eps, recovery.oscillation_omega_eps);
-  nh.param("oscillation_recovery_min_duration", recovery.oscillation_recovery_min_duration, recovery.oscillation_recovery_min_duration);
-  nh.param("oscillation_filter_duration", recovery.oscillation_filter_duration, recovery.oscillation_filter_duration);
   
   checkParameters();
   checkDeprecated(nh);
@@ -171,6 +157,7 @@ void TebConfig::reconfigure(TebLocalPlannerReconfigureConfig& cfg)
   trajectory.force_reinit_new_goal_dist = cfg.force_reinit_new_goal_dist;
   trajectory.feasibility_check_no_poses = cfg.feasibility_check_no_poses;
   trajectory.publish_feedback = cfg.publish_feedback;
+  trajectory.shrink_horizon_backup = cfg.shrink_horizon_backup;
   
   // Robot     
   robot.max_vel_x = cfg.max_vel_x;
@@ -192,8 +179,6 @@ void TebConfig::reconfigure(TebLocalPlannerReconfigureConfig& cfg)
   // Obstacles
   obstacles.min_obstacle_dist = cfg.min_obstacle_dist;
   obstacles.inflation_dist = cfg.inflation_dist;
-  obstacles.dynamic_obstacle_inflation_dist = cfg.dynamic_obstacle_inflation_dist;
-  obstacles.include_dynamic_obstacles = cfg.include_dynamic_obstacles;
   obstacles.include_costmap_obstacles = cfg.include_costmap_obstacles;
   obstacles.legacy_obstacle_association = cfg.legacy_obstacle_association;
   obstacles.obstacle_association_force_inclusion_factor = cfg.obstacle_association_force_inclusion_factor;
@@ -221,12 +206,12 @@ void TebConfig::reconfigure(TebLocalPlannerReconfigureConfig& cfg)
   optim.weight_obstacle = cfg.weight_obstacle;
   optim.weight_inflation = cfg.weight_inflation;
   optim.weight_dynamic_obstacle = cfg.weight_dynamic_obstacle;
-  optim.weight_dynamic_obstacle_inflation = cfg.weight_dynamic_obstacle_inflation;
   optim.weight_viapoint = cfg.weight_viapoint;
   optim.weight_adapt_factor = cfg.weight_adapt_factor;
   
   // Homotopy Class Planner
   hcp.enable_multithreading = cfg.enable_multithreading;
+  hcp.simple_exploration = cfg.simple_exploration;
   hcp.max_number_classes = cfg.max_number_classes; 
   hcp.selection_cost_hysteresis = cfg.selection_cost_hysteresis;
   hcp.selection_prefer_initial_plan = cfg.selection_prefer_initial_plan;
@@ -234,6 +219,7 @@ void TebConfig::reconfigure(TebLocalPlannerReconfigureConfig& cfg)
   hcp.selection_viapoint_cost_scale = cfg.selection_viapoint_cost_scale;
   hcp.selection_alternative_time_cost = cfg.selection_alternative_time_cost;
   
+  hcp.obstacle_keypoint_offset = cfg.obstacle_keypoint_offset;
   hcp.obstacle_heading_threshold = cfg.obstacle_heading_threshold;
   hcp.roadmap_graph_no_samples = cfg.roadmap_graph_no_samples;
   hcp.roadmap_graph_area_width = cfg.roadmap_graph_area_width;
@@ -242,12 +228,6 @@ void TebConfig::reconfigure(TebLocalPlannerReconfigureConfig& cfg)
   hcp.h_signature_threshold = cfg.h_signature_threshold;
   hcp.viapoints_all_candidates = cfg.viapoints_all_candidates;
   hcp.visualize_hc_graph = cfg.visualize_hc_graph;
-  hcp.visualize_with_time_as_z_axis_scale = cfg.visualize_with_time_as_z_axis_scale;
-  
-  // Recovery
-  
-  recovery.shrink_horizon_backup = cfg.shrink_horizon_backup;
-  recovery.oscillation_recovery = cfg.oscillation_recovery;
   
   checkParameters();
 }
@@ -301,9 +281,6 @@ void TebConfig::checkParameters() const
   // positive weight_adapt_factor
   if (optim.weight_adapt_factor < 1.0)
       ROS_WARN("TebLocalPlannerROS() Param Warning: parameter weight_adapt_factor shoud be >= 1.0");
-  
-  if (recovery.oscillation_filter_duration < 0)
-      ROS_WARN("TebLocalPlannerROS() Param Warning: parameter oscillation_filter_duration must be >= 0");
   
 }    
 
