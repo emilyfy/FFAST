@@ -1,0 +1,123 @@
+gradef(abs(xxxx), if xxxx>0 then 1 else -1);
+
+x: [x_, y_, psi, v_x, v_y, psi_dot, pthr, psteer];
+u: [thr, steer];
+
+tire_dyn_f(alpha):=
+block([alpha_sl,Fy],
+    if abs(alpha)>%pi/2.0
+    then alpha: (%pi-abs(alpha))*(alpha/abs(alpha)),
+
+    alpha_sl: atan(3.0*mu*load_f/c_a),
+
+    Fy: 
+    if abs(alpha) <= alpha_sl
+    then -c_a*tan(alpha) + c_a^2.0/(3.0*mu*load_f)*abs(tan(alpha))*tan(alpha) - c_a^3.0/(27*mu*load_f^2.0)*tan(alpha)^3.0
+    else -mu*load_f*(alpha/abs(alpha)),
+
+Fy
+);
+
+tire_dyn_r(v_x,thr,alpha):=
+block([K,gamma,F,Fx,Fy,ts],
+    K:(thr-v_x)/(abs(v_x)+1e-3),
+
+    reverse:1.0,
+    
+    if K<0.0
+    then (reverse:-1.0, K:abs(K)),
+
+    if abs(alpha)>%pi/2.0
+    then alpha: (%pi-abs(alpha))*(alpha/abs(alpha)),
+
+    gamma: sqrt(c_x^2.0*(K/(1+K))^2.0+c_a^2.0*(tan(alpha)/(1+K))^2.0),
+
+    F: 
+    if gamma <= 3.0*mu*load_r
+    then 1.0 - 1.0/(3.0*mu*load_r)*gamma + 1.0/(27.0*mu^2.0*load_r^2.0)*gamma^2.0
+    else mu_s*load_r/gamma,
+
+    Fx: c_x * (K/(1.0+K)) * F * reverse,
+    Fy: -c_a * (tan(alpha)/(1.0+K)) * F,
+
+[Fx,Fy]
+);
+
+dx(x,u) :=
+block([x_, y_, psi, v_x, v_y, psi_dot, thr, steer,
+K, Fyf, Fxr, Fyr,
+dpsi_dot, dv_x, dv_y, v, dx, dy],
+    [x_, y_, psi, v_x, v_y, psi_dot]: x,
+    [thr, steer]: u,
+
+    alpha_f: atan2((v_y+L_f*psi_dot),v_x)-steer,
+    alpha_r: atan2((v_y-L_r*psi_dot),v_x),
+
+    Fyf: tire_dyn_f(alpha_f),
+    [Fxr,Fyr]: tire_dyn_r(v_x,thr,alpha_r),
+
+    dpsi_dot: (L_f*Fyf*cos(steer)-L_r*Fyr)/I_z,
+    dv_x: (Fxr-Fyf*sin(steer))/m+psi_dot*v_y,
+    dv_y: (Fyf*cos(steer)+Fyr)/m-psi_dot*v_x,
+
+    v: sqrt(v_x^2.0+v_y^2.0),
+
+    beta: atan2(v_y,v_x),
+
+    dx: v*cos(beta+psi),
+    dy: v*sin(beta+psi),
+
+[dx,dy,psi_dot,dv_x,dv_y,dpsi_dot]
+);
+
+[d1,d2,d3,d4,d5,d6]: dx([x_,y_,psi,v_x,v_y,psi_dot],[thr,steer]);
+f[x_]: x_ + d1*dt;
+f[y_]: y_ + d2*dt;
+f[psi]: psi + d3*dt;
+f[v_x]: v_x + d4*dt;
+f[v_y]: v_y + d5*dt;
+f[psi_dot]: psi_dot + d6*dt;
+f[pthr]: thr;
+f[psteer]: steer;
+
+dthr: (thr-pthr)/dt;
+dsteer: (steer-psteer)/dt;
+
+sabs(x, e):= sqrt(x^2 + e^2) - e;
+
+dist_goal: sqrt((x_-goal[0])^2.0 + (y_-goal[1])^2.0 + px^2) - px;
+orientation_goal:
+if (goal[2]-psi) > %pi
+then goal[2]-psi - 2*%pi
+else if (goal[2]-psi) < %pi
+then goal[2]-psi + 2*%pi
+else goal[2]-psi;
+
+obs_x: cir_obs[0]; obs_y: cir_obs[1];
+obs_x1: seg_obs[0]; obs_y1: seg_obs[1]; obs_x2: seg_obs[2]; obs_y2: seg_obs[3];
+
+dist_cir_obs: sqrt((x_-obs_x)^2.0 + (y_-obs_y)^2.0  + 1e-6) - 1e-3;
+
+dist_seg_obs: abs( (obs_y2-obs_y1)*x_ - (obs_x2-obs_x1)*y_ + obs_x2*obs_y1 - obs_y2*obs_x1 ) / sqrt( (obs_y2-obs_y1)^2.0 + (obs_x2-obs_x1)^2.0 );
+
+cir_obs:
+if dist_cir_obs > cir_obs_thres
+then 0.0
+else (1.0/dist_cir_obs - 1.0/cir_obs_thres)^2.0;
+
+seg_obs:
+if dist_seg_obs > seg_obs_thres
+then 0.0
+else (1.0/dist_seg_obs - 1.0/seg_obs_thres)^2.0;
+
+F: cf[0]*sabs(x_-goal[0], pf[0])  + cf[1]*sabs(y_-goal[1], pf[1])  + cf[2]*sabs(psi-goal[2], pf[2]) 
+   + cf[3]*sabs(v_x-goal[3], pf[3]) + cf[4]*sabs(v_y-goal[4], pf[4]) + cf[5]*sabs(psi_dot-goal[5], pf[5]);
+
+L: cu[0]*thr^2.0 + cu[1]*steer^2.0 
+ + cdu[0]*dthr^2.0 + cdu[1]*dsteer^2.0
+ + cx*dist_goal + ca*orientation_goal + cco*cir_obs + cso*seg_obs;
+
+h[1]: -thr + limThr[0];
+h[2]: thr - limThr[1];
+h[3]: -steer + limSteer[0];
+h[4]: steer - limSteer[1];
