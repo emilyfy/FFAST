@@ -53,10 +53,11 @@ If a Wi-Fi adapter or router is used specifically for the connection between the
 Using a Wi-Fi adapter (suppose the static IP to be assigned to the car is 10.42.0.2):
 1. Connect the USB adapter to the local computer
 2. Create a new Wi-Fi network , choosing the corresponding Wi-Fi adapter.
-3. On the IPv4 settings, select the dropdown for Method to be Shared to other computers
+3. On the IPv4 settings, select the dropdown for Method to be Shared to other computers; In the Wi-Fi tab set Mode to 'Ad-hoc' and Band to 'B/G (2.4 GHz)'
 4. On the Jetson, connect to the created Wi-Fi network.
 5. Edit the network connection such that:  
-   In the general tab both 'Automatically connect to this network when it is available' and 'All users may connect to this network' are checked  
+   In the general tab both 'Automatically connect to this network when it is available' and 'All users may connect to this network' are checked 
+   In the Wi-Fi tab set Mode to 'Ad-hoc' and Band to 'B/G (2.4 GHz)'
    In the IPv4 Settings tab the Method is set to Manual and add an address with  
    Address: 10.42.0.2  
    Netmask: 24  
