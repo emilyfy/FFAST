@@ -28,13 +28,13 @@ Other parts required include:
 Refer to the [bill of materials](bill\ of\ materials.xlsx) for the complete list and websites the parts were sourced from in our project.
 
 ## Steps
-1. Laser cut the acrylic plates with the [DXF files](dxf\ files/).
-2. Manufacture the PCB with the [eagle and gerber files](RC\ car\ power\ distribution\ board/).
+1. Laser cut the acrylic plates with the DXF files in doc folder.
+2. Manufacture the PCB with the eagle and gerber files.
 3. Setup the electrical connections according to the [circuit diagram](circuit_diagram.pdf).
 4. Load the firmware into the VESC and calibrate its settings (instructions [here](vesc_setup.md)).
-5. Assemble the car according to the 3D mechanical design of the vehicle from [here](https://cmu.box.com/s/6bi81ib2nryrp9w1w69b6gy75ssbfk5l).
-6. [Install ROS](http://wiki.ros.org/kinetic/Installation/Ubuntu) and all other [package dependencies](dependencies.md) on the Jetson TX2.
-7. Set the udev rules on the Jetson (for the VESC, IMU and LIDAR) and the local computer (for the controller). Refer to the [rules file](99-usb-serial.rules) and use the same symbolic links, changing the values accordingly.
+5. Assemble the car according to the 3D mechanical design of the vehicle from [here](FFAST_Assem.SLDASM).
+6. [Install ROS](http://wiki.ros.org/kinetic/Installation/Ubuntu) and all other [package dependencies](dependencies.md) on the Jetson TX2.(Please make sure the ROS verison installed to be ROS kinetic, otherwise there might be some compatibility problems)
+7. Set the udev rules on the Jetson (for the VESC, IMU and LIDAR) and the local computer (for the controller). Refer to the [rules file](99-usb-serial.rules) and use the same symbolic links, changing the values accordingly. (Joystick settings may vary due to different types of controllers, please check values)
 8. Have a local computer with ROS and the same packages installed to remotely control the car.
 9. Setup the network connections between the local computer and the car (instructions [here](remote_connection.md)).
 10. The vehicle is now ready for [test runs](test_runs.md).

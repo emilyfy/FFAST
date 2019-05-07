@@ -46,8 +46,9 @@ int iLQR::assignParams(ros::NodeHandle nh, ros::NodeHandle pnh)
         _params[i].name = (char *)_param_names[i];
         _params[i].size = 0;
 
-        //// REMEMBER TO CHANGE THESE IF THE iLQG_func.c FILE IS CHANGED!!!!!!!  ////
+        //// REMEMBER TO CHANGE THESE IF THE iLQG_func.c FILE IS CHANGED!!!!!!   ////
         ////                     THESE ARE THE CONSTANT PARAMS                   ////
+        ////   MAKE SURE PARAMS ARE CONSTANT AND CONSIST BETWEEN TWO FILES       ////
 
         if (strcmp(_params[i].name , "I_z")            == 0) _params[i].data = &_I_z           ;
         if (strcmp(_params[i].name , "L_f")            == 0) _params[i].data = &_L_f           ;
@@ -91,7 +92,7 @@ int iLQR::assignParams(ros::NodeHandle nh, ros::NodeHandle pnh)
     // set variables for cf
     cf_bef_goal_[0] = _cf[0];
     cf_aft_goal_[0] = 0;
-    for (int i=1; i<6; i++) {
+    for (int i=1; i<7; i++) {
         cf_bef_goal_[i] = 0;
         cf_aft_goal_[i] = _cf[i];
     }

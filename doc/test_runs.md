@@ -1,4 +1,5 @@
 # Test Runs
+To power up the car, plug battery into voltage input plug on the power distribution board, and press the VESC switch button beside it. Once the blue light on VESC is turned on, press power button of the Jestson then the whole system will be turned on.
 
 After powering up the Jetson and the VESC with the on-board battery and setting up the necessary remote network connections, the car is ready for running.
 
@@ -26,7 +27,7 @@ The launch arguments are:
 - use_amcl  
   Set to true to perform particle filter localization on the LIDAR scans and include the output in the EKF. If true, a map must be provided.
 - map  
-  The name of the map. The map files (pgm and yaml) must be placed inside the map folder inside the ffast package.
+  The name of the map. The map files (pgm and yaml) must be placed inside the map folder inside the ffast package. Please make sure cartain map is used when localization is launched, it would influence the result of test.
 
 ## Teleoperation of the car
 In the local computer with a controller connected,
@@ -39,7 +40,9 @@ Refer to the [schematic](controller.jpg) for details.
 ```bash
 $ roslaunch ffast ffast.launch
 ```
-or
+This command will launch hardware, localiztion and planning at the same time.
+
+Or you can launch them step by step to check status of each part.
 ```bash
 $ roslaunch hardware hardware.launch
 $ roslaunch localization localization.launch

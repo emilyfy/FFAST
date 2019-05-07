@@ -3,7 +3,7 @@
     <arg name="fuse_odom" default="true" />
     <arg name="use_scan_matcher" default="true" />
     <arg name="use_amcl" default="true" />
-    <arg name="map" default="basement_mrsd" if="$(arg use_amcl)" />
+    <arg name="map" default="basement" if="$(arg use_amcl)" />
     
     <rosparam command="load" file="$(find localization)/localization.yaml" />
     

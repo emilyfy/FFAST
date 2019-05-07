@@ -29,6 +29,8 @@ Refer to the [test runs](doc/test_runs.md) for the commands to run the tests.
 
 * **Jordan Ford** - [jsford](https://github.com/jsford)
 * **Emily Yunan** - [emilyfy](https://github.com/emilyfy)
+* **Shihao Xu** - [FromVic](https://github.com/FromVic)
+
 
 See also the list of [contributors](https://github.com/jsford/FFAST/contributors) who participated in this project.
 

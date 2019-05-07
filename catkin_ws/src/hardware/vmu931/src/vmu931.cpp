@@ -13,7 +13,7 @@ Vmu931::Vmu931(ros::NodeHandle nh, ros::NodeHandle pnh)
     pnh.param("publish_mag", publish_mag_, false);
     pnh.param("publish_vmu931", publish_vmu_, false);
 
-    // connect to vmu931
+    // connect to VMU931
     connectSerialPort();
     ROS_INFO("VMU931: connected.");
 

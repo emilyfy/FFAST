@@ -359,7 +359,7 @@ bool TimedElasticBand::initTrajectoryToGoal(const std::vector<geometry_msgs::Pos
     bool backwards = false;
     if (guess_backwards_motion && (goal.position()-start.position()).dot(start.orientationUnitVec()) < 0) // check if the goal is behind the start pose (w.r.t. start orientation)
         backwards = true;
-    // TODO: dt ~ max_vel_x_backwards for backwards motions
+    // TODO: dt ~ max_vel_x_backwards when doing backwards motions
     
     for (int i=1; i<(int)plan.size()-1; ++i)
     {
@@ -569,7 +569,8 @@ bool TimedElasticBand::detectDetoursBackwards(double threshold) const
   
   /// check if upcoming configuration (next index) ist pushed behind the start (e.g. due to obstacles)
   // TODO: maybe we need a small hysteresis?
-/*  for (unsigned int i=0;i<2;++i) // check only a few upcoming
+  // If the code shows error, comment out this part and try again.
+for (unsigned int i=0;i<2;++i) // check only a few upcoming
   {
     if (i+1 >= sizePoses()) break;
     Eigen::Vector2d start2conf = Pose(i+1).position() - Pose(0).position();

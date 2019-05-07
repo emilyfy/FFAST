@@ -63,7 +63,7 @@ LaserScanMatcher::LaserScanMatcher(ros::NodeHandle nh, ros::NodeHandle nh_privat
   input_.laser[0] = 0.0;
   input_.laser[1] = 0.0;
   input_.laser[2] = 0.0;
-
+  // input_.laser[3] = 0.0;
   // Initialize output_ vectors as Null for error-checking
   output_.cov_x_m = 0;
   output_.dx_dy1_m = 0;
@@ -94,7 +94,13 @@ LaserScanMatcher::LaserScanMatcher(ros::NodeHandle nh, ros::NodeHandle nh_privat
     pose_with_covariance_stamped_publisher_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
       "pose_with_covariance_stamped", 5);
   }
-
+    
+ /* if (publish_pose_with_covariance_stamp)
+  {
+    pose_with_covariance_stamped_publisher_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
+      "pose_with_covariance_stamp", 5);
+  }*/
+    
   // *** subscribers
 
   if (use_cloud_input_)
@@ -294,13 +300,13 @@ void LaserScanMatcher::initParams()
   // Parameters describing a simple adaptive algorithm for discarding.
   //  1) Order the errors.
   //  2) Choose the percentile according to outliers_adaptive_order.
-  //     (if it is 0.7, get the 70% percentile)
+  //     (if it is 0.75, get the 75% percentile)
   //  3) Define an adaptive threshold multiplying outliers_adaptive_mult
   //     with the value of the error at the chosen percentile.
   //  4) Discard correspondences over the threshold.
   //  This is useful to be conservative; yet remove the biggest errors.
   if (!nh_private_.getParam ("outliers_adaptive_order", input_.outliers_adaptive_order))
-    input_.outliers_adaptive_order = 0.7;
+    input_.outliers_adaptive_order = 0.75;
 
   if (!nh_private_.getParam ("outliers_adaptive_mult", input_.outliers_adaptive_mult))
     input_.outliers_adaptive_mult = 2.0;

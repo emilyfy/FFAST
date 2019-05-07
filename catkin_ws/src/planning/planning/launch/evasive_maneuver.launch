@@ -23,5 +23,6 @@
     <node pkg="evasive_maneuver" type="estop_stamper" name="estop_stamper" />
     
     <!--node pkg="user_interface" type="stop_near_obs" name="stop_near_obs" /-->
+    <!--node pkg="user_interface" type="obs_restart" name="obs_restart" /-->
 
 </launch>
